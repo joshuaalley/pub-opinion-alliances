@@ -30,5 +30,5 @@
 !.gitignore
 
 # ignore survey instrument files
-.docx 
-.html 
+*.docx 
+*.html 
