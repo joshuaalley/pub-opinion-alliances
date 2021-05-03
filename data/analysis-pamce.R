@@ -3,9 +3,7 @@
 # using model-based exploratory analysis
 
 
-
-# load factorEx package
-library(factorEx)
+# w/ FactorEx package
 
 # atop dyadic data
 atop.dyad <- read.csv("data/atop5_0dy.csv")
@@ -40,7 +38,7 @@ atop.alliance <- read.csv("data/atop5-alliance.csv") %>%
                             atopid == 3260 | atopid == 3240,
                             "Specific Region",
                     ifelse(atopid == 3375 |
-                           atopid == 3215 | atopid == 3210, "Ally Attacked",
+                           atopid == 3215 | atopid == 3210, "Nonprovocation",
                           "Unconditional"))
     
   )
@@ -93,10 +91,10 @@ us.ally.full <- left_join(us.ally, ipe_v4) %>%
                              "Moderate Capability", "Low Capability")),
                # alliance cost
                cost = ifelse(atopid == 3180 | atopid == 3375 | atopid == 3240,
-                             "$15 Billion", # NATO, Japan, Korea
+                             "$15 billion", # NATO, Japan, Korea
                         ifelse(ccode == 840 | ccode == 900 | # phillipines, australia
-                                ccode == 770, "$10 Billion", # pakistan
-                               "$5 Billion" 
+                                ccode == 770, "$10 billion", # pakistan
+                               "$5 billion" 
                                  )),
               # military cooperation
               mil.coop = ifelse(atopid == 3180, 
@@ -112,19 +110,19 @@ us.ally.full <- left_join(us.ally, ipe_v4) %>%
               # democratic senator support
               dem.supp = ifelse(ccode == 640 | ccode == 800 |
                                   ccode == 770, # Turkey, thailand and pakistan
-                  "Dem. Senate Oppose.", "Dem. Senate Support."),
+                  "Dem. Senate Oppose", "Dem. Senate Support"),
              # republican senator support
               rep.supp = ifelse(ccode == 640 | ccode == 366 | ccode == 367 |
                                   ccode == 368 | # turkey and baltics
                                   ccode == 770 | # pakistan
                                   ccode == 339 | ccode == 341, # fmr. yugoslavia
-                  "Rep. Senate Oppose.", "Rep. Senate Support."),
+                  "Rep. Senate Oppose", "Rep. Senate Support"),
              # joint chiefs support
             jcs.supp = ifelse(ccode == 800,
-                      "JCS Oppose.", "JCS Support."),
+                      "JCS Oppose", "JCS Support"),
             # state department
             state.supp = ifelse(ccode == 800,
-              "State Oppose.", "State Support.")
+              "State Oppose", "State Support")
                    )
 us.ally.full$cap[is.na(us.ally.full$cap)] <- "Low Capability"
 us.ally.full$regime[is.na(us.ally.full$regime)] <- "Democracy"
@@ -178,7 +176,7 @@ milc.marg
 
 # financial cost TODO: add levels
 cost.marg <- c(.6, .3, .1)
-names(cost.marg)
+names(cost.marg) <- levels(main.data$cost)
 cost.marg
 
 # support conditions
@@ -206,19 +204,18 @@ region.marg
 marginal.attr <- list(dem.sen, rep.sen, mil.lead, dip.lead, 
                        threat.marg,  region.marg,
                        regime.marg, trade.marg, cond.marg,
+                       cost.marg, 
                        coop.marg, linkage.marg, cap.marg,  
                        milc.marg)
 names(marginal.attr) <- c("dem.supp", "rep.supp", "jcs.supp", "state.supp",
                           "shared.threat", "region",
-                          "regime", "trade", "support.cond",
+                          "regime", "trade", "support.cond", "cost",
                           "defense.coop", "issue.link", "cap",
                            "mil.coop")
 
 # load up key data for pre-reg
 us.ally.key <- select(us.ally.full, ccode, atopid,
                       names(marginal.attr))
-write.csv(us.ally.key, "prereg-files/us-alliance-pop.csv",
-          row.names = FALSE)
 
 # manually pull region- no Africa creates target dist problems 
 us.ally.key <- select(us.ally.key, -c(region, ccode, atopid))
@@ -226,15 +223,20 @@ class(us.ally.key) <- "data.frame"
 
 
 # model: formation 
-class(form.data) <- "data.frame"
+# get complete cases
+form.data.comp <- form.data %>%
+                select(ResponseId, choice, names(marginal.attr))
+form.data.comp <- form.data.comp[complete.cases(form.data.comp), ]
+class(form.data.comp) <- "data.frame"
+# fit model
 form.pop <- model_pAMCE(formula = choice ~ dem.supp + rep.supp + jcs.supp + state.supp +
                           shared.threat + region +
-                          regime + trade + support.cond +
+                          regime + trade + support.cond + cost +
                           defense.coop + issue.link + cap + mil.coop,
-                        data = form.data,
+                        data = form.data.comp,
                         reg = TRUE, cross_int = TRUE,
                         pair = FALSE,
-                        cluster_id = form.data$ResponseId,
+                        cluster_id = form.data.comp$ResponseId,
                         target_dist = marginal.attr,
                         target_type = "marginal",
                         boot = 1000, seed = 12)
@@ -243,34 +245,38 @@ plot(form.pop, diagnose = TRUE)
 
 
 # model: maintenance
-
 # Use observed US alliances as the target distribution
-class(main.data) <- "data.frame"
+# get complete cases 
+main.data.comp <- main.data %>%
+  select(ResponseId, choice, names(marginal.attr))
+main.data.comp <- main.data.comp[complete.cases(main.data.comp), ]
+class(main.data.comp) <- "data.frame"
+# fit model
 main.pop.marg <- model_pAMCE(formula = choice ~ dem.supp + rep.supp + jcs.supp + state.supp +
                           shared.threat + region +
-                          regime + trade + support.cond +
+                          regime + trade + support.cond + cost +
                           defense.coop + issue.link + cap + mil.coop,
-                        data = main.data,
+                        data = main.data.comp,
                         reg = TRUE, cross_int = TRUE,
                         pair = FALSE,
-                        cluster_id = main.data$ResponseId,
+                        cluster_id = main.data.comp$ResponseId,
                         target_dist = marginal.attr,
                         target_type = "marginal",
                         boot = 1000, seed = 12)
 summary(main.pop.marg, sample = TRUE)
-plot(main.pop, diagnose = TRUE)
+plot(main.pop.marg, diagnose = TRUE)
 
 
 
 # Use observed US alliances as the target distribution
 main.pop <- model_pAMCE(formula = choice ~ dem.supp + rep.supp + jcs.supp + state.supp +
                             shared.threat +
-                            regime + trade + support.cond +
+                            regime + trade + support.cond + cost +
                             defense.coop + issue.link + cap + mil.coop,
-                         data = main.data,
+                         data = main.data.comp,
                          reg = TRUE, cross_int = TRUE,
                          pair = FALSE,
-                         cluster_id = main.data$ResponseId,
+                         cluster_id = main.data.comp$ResponseId,
                          target_dist = list(us.ally.key),
                          target_type = "target_data",
                          boot = 1000, seed = 12)
