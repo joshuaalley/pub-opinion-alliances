@@ -225,11 +225,11 @@ class(us.ally.key) <- "data.frame"
 # model: formation 
 # get complete cases
 form.data.comp <- form.data %>%
-                select(ResponseId, choice, names(marginal.attr))
+                select(ResponseId, rating, names(marginal.attr))
 form.data.comp <- form.data.comp[complete.cases(form.data.comp), ]
 class(form.data.comp) <- "data.frame"
 # fit model
-form.pop <- model_pAMCE(formula = choice ~ dem.supp + rep.supp + jcs.supp + state.supp +
+form.pop <- model_pAMCE(formula = rating ~ dem.supp + rep.supp + jcs.supp + state.supp +
                           shared.threat + region +
                           regime + trade + support.cond + cost +
                           defense.coop + issue.link + cap + mil.coop,
@@ -248,11 +248,11 @@ plot(form.pop, diagnose = TRUE)
 # Use observed US alliances as the target distribution
 # get complete cases 
 main.data.comp <- main.data %>%
-  select(ResponseId, choice, names(marginal.attr))
+  select(ResponseId, rating, names(marginal.attr))
 main.data.comp <- main.data.comp[complete.cases(main.data.comp), ]
 class(main.data.comp) <- "data.frame"
 # fit model
-main.pop.marg <- model_pAMCE(formula = choice ~ dem.supp + rep.supp + jcs.supp + state.supp +
+main.pop.marg <- model_pAMCE(formula = rating ~ dem.supp + rep.supp + jcs.supp + state.supp +
                           shared.threat + region +
                           regime + trade + support.cond + cost +
                           defense.coop + issue.link + cap + mil.coop,
@@ -269,7 +269,7 @@ plot(main.pop.marg, diagnose = TRUE)
 
 
 # Use observed US alliances as the target distribution
-main.pop <- model_pAMCE(formula = choice ~ dem.supp + rep.supp + jcs.supp + state.supp +
+main.pop <- model_pAMCE(formula = rating ~ dem.supp + rep.supp + jcs.supp + state.supp +
                             shared.threat +
                             regime + trade + support.cond + cost +
                             defense.coop + issue.link + cap + mil.coop,

@@ -1,38 +1,6 @@
 # Joshua Alley
 # Clean data and prep for analysis
 
-
-
-# load packages
-library(tidyverse)
-library(stringr)
-library(cregg)
-library(conflicted)
-library(sjlabelled)
-library(gridExtra)
-library(FindIt)
-library(ggcarly)
-library(factorEx)
-
-# manage conflicts
-conflict_scout()
-conflict_prefer("lag", "dplyr")
-conflict_prefer("filter", "dplyr")
-conflict_prefer("combine", "dplyr")
-conflict_prefer("select", "dplyr")
-conflict_prefer("expand", "tidyr")
-conflict_prefer("pack", "tidyr")
-conflict_prefer("unpack", "tidyr")
-conflict_prefer("as_data_frame", "dplyr")
-conflict_prefer("compose", "purrr")
-conflict_prefer("crossing", "tidyr")
-conflict_prefer("groups", "dplyr")
-conflict_prefer("simplify", "purrr")
-
-# set seed
-set.seed(12)
-
-
 ### load and clean sectoral exports and imports data
 # from 2019: goods and services (no 2020 data yet at https://data.wto.org/)
 trade.data <- read.csv("data/wto-us-trade.csv")
@@ -266,7 +234,7 @@ cjoint.data$party.id <- ifelse(cjoint.data$political_party >= 8 |
 
 # factor and split by republican/not 
 cjoint.data$party.id <- factor(cjoint.data$party.id,
-                              levels = c("Independent", "Democrat", "Republican"))
+                              levels = c("Republican", "Independent", "Democrat"))
 print(table(cjoint.data$party.id))
 cjoint.data$republican <- factor(ifelse(cjoint.data$party.id == "Republican", "Repub.", "Democ./Indep."))
 print(table(cjoint.data$republican))
@@ -292,6 +260,9 @@ cjoint.data$isolation.fac <- factor(ifelse(cjoint.data$isolation.num > 3, "Agree
                                    #  ifelse(cjoint.data$isolation.num == 3, "Neutral",      
                                           "Disagree/Neutral"),
                                     levels = c("Disagree/Neutral", "Agree"))
+cjoint.data$isolation.fac <- recode(cjoint.data$isolation.fac,
+                                    "Disagree/Neutral" = "International",
+                                    "Agree" = "Isolation")
 print("Isolationism")
 print(table(cjoint.data$isolation.fac))
 
@@ -304,6 +275,9 @@ cjoint.data$mil.inter <- cjoint.data$peace.str.num + cjoint.data$war.unf.num -
   cjoint.data$force.worse.num
 cjoint.data$mil.inter.fac <- cut(cjoint.data$mil.inter, 2)
 print("Mil. Inter.")
+cjoint.data$mil.inter.fac <- recode(cjoint.data$mil.inter.fac,
+                                    "(-3.01,3]" = "Dove",
+                                    "(3,9.01]" = "Hawk")
 print(table(cjoint.data$mil.inter.fac))
 # split exports
 cjoint.data$exports.fac <- factor(ifelse(cjoint.data$net.exports >= 0, "Positive",
@@ -453,6 +427,7 @@ data <- cjoint.data
 
 
 # formation data
+# apply function to clean
 form.data <- feature.clean(data = formation.data, 
                            ntask = 5)
 

@@ -78,6 +78,9 @@ open.clean <- function(data){
                                              #  ifelse(covar.data$isolation.num == 3, "Neutral",      
                                              "Disagree/Neutral"),
                                       levels = c("Disagree/Neutral", "Agree"))
+  covar.data$isolation.fac <- recode(covar.data$isolation.fac,
+                                      "Disagree/Neutral" = "International",
+                                      "Agree" = "Isolation")
   print("Isolationism")
   print(table(covar.data$isolation.fac))
   
@@ -89,6 +92,9 @@ open.clean <- function(data){
   covar.data$mil.inter <- covar.data$peace.str.num + covar.data$war.unf.num -
     covar.data$force.worse.num
   covar.data$mil.inter.fac <- cut(covar.data$mil.inter, 2)
+  covar.data$mil.inter.fac <- recode(covar.data$mil.inter.fac,
+                                      "(-3.01,3]" = "Dove",
+                                      "(3,9.01]" = "Hawk")
   print("Mil. Inter.")
   print(table(covar.data$mil.inter.fac))
   # split exports
@@ -183,6 +189,12 @@ ggplot(openq.main, aes(x = mil.inter, y = isolation.num,
                        color = party.id)) +
   geom_jitter(alpha = .5)
 
+# numbers of each
+openq.main$party.dispo <- interaction(openq.main$party.id, 
+                                      openq.main$mil.inter.fac,
+                                      openq.main$isolation.fac,
+                                      sep = "_")
+table(openq.main$party.dispo)
 
 # economic interests and parties
 table(openq.form$party.id, openq.form$exports.fac)

@@ -2,9 +2,7 @@
 # Public Opinion towards military alliances 
 
 # estimate AMCE of different alliance components
-
-# do not need to load design: no profile restrictions
-
+# and analyze subgroups
 
 ### NATO example data
 nato.top <- read.csv("data/nato-toplines.csv")
@@ -49,10 +47,10 @@ rate.formula <- formula(rating ~ dem.supp + rep.supp + jcs.supp + state.supp +
 # maintenance
 main.data$task <- factor(main.data$task)
 # check differences by task
-cj_anova(main.data, choice.formula,
+cj_anova(main.data, rate.formula,
      id = ~ ResponseId, by = ~ task)
 # no clear difference: plot is illegible
-mm.task <- cj(main.data, choice.formula, 
+mm.task <- cj(main.data, rate.formula, 
             id = ~ ResponseId, estimate = "mm", by = ~ task)
 plot(mm.task, group = "task", vline = 0.5)
 
@@ -62,7 +60,8 @@ plot(mm(main.data, choice.formula,
 
 amce.main.choice <- amce(main.data, choice.formula,
                          id = ~ ResponseId)
-main.choice.plot <- plot(amce.main.choice) + theme(legend.position = "none") +
+main.choice.plot <- plot(amce.main.choice) + theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
+                   xlim(-.07, .13) +
                  labs(title = "Maintain Alliance?")
 main.choice.plot
 ggsave("figures/maintain-plot.png", main.choice.plot, width = 8, height = 8)
@@ -74,27 +73,56 @@ plot(mm(main.data, rate.formula,
 
 amce.main.rate <- amce(main.data, rate.formula,
                        id = ~ ResponseId)
-main.rate.plot <- plot(amce.main.rate) + theme(legend.position = "none") +
+main.rate.plot <- plot(amce.main.rate) + theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
+  xlim(-4, 6.5) +
   labs(title = "Existing Alliance Rating")
 main.rate.plot
+
+
+# combine maintenance choice and rating plots 
+grid.arrange(main.choice.plot, main.rate.plot, ncol= 2)
+maintenance.plots <- arrangeGrob(main.choice.plot, main.rate.plot, ncol = 2)
+ggsave("appendix/maintenance-plots.png", maintenance.plots, width = 10, height = 8)
+
 
 # partisan subgroups
 mm.main.part <- cj(main.data, choice.formula,
                        estimate = "mm",
-                       id = ~ ResponseId, by = ~ republican)
-plot(mm.main.part, group = "republican")
+                       id = ~ ResponseId, by = ~ party.id)
+mmplot.main.part <- plot(mm.main.part, group = "party.id") +
+                      facet_wrap(~BY, ncol = 3L) + 
+                    theme_grey() + 
+                      theme(legend.position = "none", 
+                           axis.text.y = element_text(size = 8)) +
+  ggtitle("Party ID and Alliance Maintenance")
+mmplot.main.part
+
+# differences in marginal means
 mmd.main.part <- cj(main.data, choice.formula,
                    estimate = "mm_differences",
-                   id = ~ ResponseId, by = ~ republican)
+                   id = ~ ResponseId, by = ~ party.id)
+mmdiff.main.part <- plot(mmd.main.part) +
+                     facet_wrap(~BY, ncol = 3L) + 
+                     theme_grey() +
+                     theme(legend.position = "none", 
+                          axis.text.y = element_text(size = 8))
+mmdiff.main.part
 # plot marginal means and differences
+grid.arrange(mmplot.main.part, mmdiff.main.part)
+part.main.plot <- arrangeGrob(mmplot.main.part, mmdiff.main.part)
+ggsave("figures/partisan-main.png", part.main.plot,
+       width = 10, height = 11)
+
+
 main.part.plot <- plot(rbind(mm.main.part, mmd.main.part)) + 
-  facet_wrap(~BY, ncol = 3L) + theme(legend.position = "none") +
+  theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
+  facet_wrap(~BY, ncol = 3L, scales = "free_x") + 
+  theme_grey() +
   ggtitle("Party ID and Alliance Maintenance")
 main.part.plot
-ggsave("figures/partisan-main.png", width = 10, height = 10)
 # f-test shows clear differences
 cj_anova(main.data, choice.formula,
-         id = ~ ResponseId, by = ~ republican)
+         id = ~ ResponseId, by = ~ party.id)
 
 
 # split by export interests 
@@ -109,12 +137,12 @@ mmd.main.econ <- cj(main.data, choice.formula,
 plot(mmd.main.econ, group = "exports.fac")
 
 exports.main <- plot(rbind(mm.main.econ, mmd.main.econ)) + 
-                  facet_wrap(~BY, ncol = 3L) + theme(legend.position = "none") +
+                  facet_wrap(~BY, ncol = 3L) + theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
                   ggtitle("Net Exports and Alliance Maintenance")
 exports.main
 
-# f-test shows no clear differences
-cj_anova(main.data, choice.formula,
+# f-test shows clear differences
+cj_anova(main.data[!is.na(main.data$exports.fac), ], choice.formula,
          id = ~ ResponseId, by = ~ exports.fac)
 
 
@@ -128,11 +156,15 @@ mmd.main.isol  <- cj(main.data, choice.formula,
                        estimate = "mm_differences",
                        id = ~ ResponseId, by = ~ isolation.fac)
 plot(mmd.main.isol, group = "isolation.fac")
-plot(rbind(mm.main.isol, mmd.main.isol)) + 
-  facet_wrap(~BY, ncol = 3L) + theme(legend.position = "none") +
-  ggtitle("Isolationism and Alliance Maintenance")
-# f-test shows no clear differences
-cj_anova(main.data, choice.formula,
+isol.main <- plot(rbind(mm.main.isol, mmd.main.isol)) + 
+              facet_wrap(~BY, ncol = 3L) + 
+              theme_grey() +
+              theme(legend.position = "none", 
+                    axis.text.y = element_text(size = 6)) +
+              ggtitle("Isolationism and Alliance Maintenance")
+isol.main
+# f-test shows clear differences
+cj_anova(main.data[!is.na(main.data$isolation.fac), ], choice.formula,
          id = ~ ResponseId, by = ~ isolation.fac)
 
 
@@ -146,11 +178,15 @@ mmd.main.milint  <- cj(main.data, choice.formula,
                        estimate = "mm_differences",
                        id = ~ ResponseId, by = ~ mil.inter.fac)
 plot(mmd.main.milint, group = "mil.inter.fac")
-plot(rbind(mm.main.milint, mmd.main.milint)) + 
-  facet_wrap(~BY, ncol = 3L) + theme(legend.position = "none") +
-  ggtitle("Militant Internationalism and Alliance Maintenance")
-# f-test shows no clear difference
-cj_anova(main.data, choice.formula,
+hawk.main <- plot(rbind(mm.main.milint, mmd.main.milint)) + 
+               facet_wrap(~BY, ncol = 3L) + 
+               theme_grey() +
+               theme(legend.position = "none", 
+                    axis.text.y = element_text(size = 6)) +
+               ggtitle("Militant Internationalism and Alliance Maintenance")
+hawk.main
+# f-test shows clear difference
+cj_anova(main.data[!is.na(main.data$mil.inter.fac), ], choice.formula,
          id = ~ ResponseId, by = ~ mil.inter.fac)
 
 
@@ -170,7 +206,8 @@ plot(mm(form.data, choice.formula,
 
 amce.form.choice <- amce(form.data, choice.formula,
                          id = ~ ResponseId)
-form.choice.plot <- plot(amce.form.choice) + theme(legend.position = "none") +
+form.choice.plot <- plot(amce.form.choice) + theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
+                     xlim(-.07, .13) +
                      labs(title = "Form Alliance?")
 form.choice.plot
 ggsave("figures/formation-plot.png", form.choice.plot, width = 8, height = 8)
@@ -182,14 +219,15 @@ plot(mm(form.data, rate.formula,
 
 amce.form.rate <- amce(form.data, rate.formula,
                        id = ~ ResponseId)
-form.rate.plot <- plot(amce.form.rate) + theme(legend.position = "none") +
+form.rate.plot <- plot(amce.form.rate) + theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
+                     xlim(-3, 6) +
                      labs(title = "New Alliance Rating")
 form.rate.plot
 
 # combine formation choice and rating plots 
 grid.arrange(form.choice.plot, form.rate.plot, ncol= 2)
 formation.plots <- arrangeGrob(form.choice.plot, form.rate.plot, ncol = 2)
-ggsave("figures/formation-plots.png", formation.plots, width = 10, height = 8)
+ggsave("appendix/formation-plots.png", formation.plots, width = 10, height = 8)
 
 
 # combine formation and maintenance choice plots
@@ -202,53 +240,74 @@ ggsave("figures/joint-amce-plots.png", joint.amce.plots, width = 10, height = 8)
 # partisan subgroups
 mm.form.part <- cj(form.data, choice.formula,
                    estimate = "mm",
-                   id = ~ ResponseId, by = ~ republican)
-plot(mm.form.part, group = "republican")
+                   id = ~ ResponseId, by = ~ party.id)
+mmplot.form.part <- plot(mm.form.part, group = "party.id") +
+  facet_wrap(~BY, ncol = 3L) + 
+  theme_grey() +
+  theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
+  ggtitle("Party ID and Alliance Formation")
+mmplot.form.part
+
+# differences in marginal means
 mmd.form.part <- cj(form.data, choice.formula,
                     estimate = "mm_differences",
-                    id = ~ ResponseId, by = ~ republican)
+                    id = ~ ResponseId, by = ~ party.id)
+mmdiff.form.part <- plot(mmd.form.part) +
+  facet_wrap(~BY, ncol = 3L) + 
+  theme_grey() +
+  theme(legend.position = "none", axis.text.y = element_text(size = 8))
+mmdiff.form.part
 # plot marginal means and differences
+grid.arrange(mmplot.form.part, mmdiff.form.part)
+part.form.plot <- arrangeGrob(mmplot.form.part, mmdiff.form.part)
+ggsave("figures/partisan-form.png", part.form.plot,
+       width = 10, height = 11)
+
+
 form.part.plot <- plot(rbind(mm.form.part, mmd.form.part)) + 
-                    facet_wrap(~BY, ncol = 3L) + theme(legend.position = "none") +
-                    ggtitle("Party ID and Alliance Formation")
+  theme_grey() +
+  theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
+  facet_wrap(~BY, ncol = 3L, scales = "free_x") + 
+  ggtitle("Party ID and Alliance Formation")
 form.part.plot
-ggsave("figures/partisan-form.png", height = 8, width = 10)
 # f-test shows clear differences
 cj_anova(form.data, choice.formula,
-         id = ~ ResponseId, by = ~ republican)
+         id = ~ ResponseId, by = ~ party.id)
 # amce difference
 plot(amce_diffs(form.data, choice.formula,
-                id = ~ ResponseId, by = ~ republican))
+                id = ~ ResponseId, by = ~ party.id)) +
+      facet_wrap(~ BY, ncol = 3L)
 
 # combine formation and maintenance partisanship plots
-grid.arrange(form.part.plot, main.part.plot, ncol= 2)
-joint.part.plots <- arrangeGrob(form.part.plot, main.part.plot, ncol= 2)
-ggsave("figures/joint-part-plots.png", joint.part.plots, width = 12, height = 8)
+grid.arrange(part.form.plot, part.main.plot, ncol= 2)
+joint.part.plots <- arrangeGrob(part.form.plot, part.main.plot, ncol= 2)
+ggsave("figures/joint-part-plots.png", joint.part.plots, width = 12, height = 10)
+
 
 # split by export interests 
 mm.form.econ <- cj(form.data, choice.formula,
                    estimate = "mm",
                    id = ~ ResponseId, by = ~ exports.fac)
 plot(mm.form.econ, group = "exports.fac")
-# clear differences, but few respondents in one group of exports
+# clear differences
 mmd.form.econ <- cj(form.data, choice.formula,
                     estimate = "mm_differences",
                     id = ~ ResponseId, by = ~ exports.fac)
 plot(mmd.form.econ, group = "exports.fac")
 
 exports.form <- plot(rbind(mm.form.econ, mmd.form.econ)) + 
-                  facet_wrap(~BY, ncol = 3L) + theme(legend.position = "none") +
+                  facet_wrap(~BY, ncol = 3L) + theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
                   ggtitle("Net Exports and Alliance Formation")
 exports.form
 
-# f-test shows potential differences
-cj_anova(form.data, choice.formula,
+# f-test shows no clear differences
+cj_anova(form.data[!is.na(form.data$exports.fac), ], choice.formula,
          id = ~ ResponseId, by = ~ exports.fac)
 
 # combine formation and maintenance choice plots
 grid.arrange(exports.form, exports.main, ncol= 2)
 joint.econ.plots <- arrangeGrob(exports.form, exports.main, ncol= 2)
-ggsave("figures/joint-econ-plots.png", joint.econ.plots, width = 12, height = 8)
+ggsave("figures/joint-econ-plots.png", joint.econ.plots, width = 12, height = 10)
 
 
 # split by isolationism
@@ -256,16 +315,20 @@ mm.form.isol <- cj(form.data, choice.formula,
                    estimate = "mm",
                    id = ~ ResponseId, by = ~ isolation.fac)
 plot(mm.form.isol, group = "isolation.fac")
-# no clear differences
+# clear differences
 mmd.form.isol <- cj(form.data, choice.formula,
                               estimate = "mm_differences",
                              id = ~ ResponseId, by = ~ isolation.fac)
 plot(mmd.form.isol, group = "isolation.fac")
-plot(rbind(mm.form.isol, mmd.form.isol)) + 
-  facet_wrap(~BY, ncol = 3L) + theme(legend.position = "none") +
-  ggtitle("Isolationism and Alliance Formation")
-# f-test 
-cj_anova(form.data, choice.formula,
+isol.form <- plot(rbind(mm.form.isol, mmd.form.isol)) + 
+              facet_wrap(~BY, ncol = 3L) + 
+              theme_grey() +
+              theme(legend.position = "none", 
+                    axis.text.y = element_text(size = 6)) +
+              ggtitle("Isolationism and Alliance Formation")
+isol.form
+# f-test: clear difference
+cj_anova(form.data[!is.na(form.data$isolation.fac), ], choice.formula,
          id = ~ ResponseId, by = ~ isolation.fac)
 
 
@@ -280,77 +343,164 @@ mmd.form.milint  <- cj(form.data, choice.formula,
                        estimate = "mm_differences",
                        id = ~ ResponseId, by = ~ mil.inter.fac)
 plot(mmd.form.milint, group = "mil.inter.fac")
-plot(rbind(mm.form.milint, mmd.form.milint)) + 
-  facet_wrap(~BY, ncol = 3L) + theme(legend.position = "none") +
-  ggtitle("Militant Internationalism and Alliance Formation")
-# f-test shows potential
-cj_anova(form.data, choice.formula,
+hawk.form <- plot(rbind(mm.form.milint, mmd.form.milint)) + 
+              facet_wrap(~BY, ncol = 3L) + 
+              theme_grey() +
+              theme(legend.position = "none",
+                    axis.text.y = element_text(size = 6)) +
+              ggtitle("Militant Internationalism and Alliance Formation")
+hawk.form
+# f-test shows clear differences
+cj_anova(form.data[!is.na(form.data$mil.inter.fac), ], choice.formula,
          id = ~ ResponseId, by = ~ mil.inter.fac)
 
+
+
+# combine plots for isolationism
+grid.arrange(isol.form, isol.main, ncol= 1)
+isolation.plots <- arrangeGrob(isol.form, isol.main, ncol= 1)
+ggsave("appendix/isolation-plots.png", isolation.plots, width = 10, height = 10)
+
+# combine plots for hawkishness
+grid.arrange(hawk.form, hawk.main, ncol= 1)
+hawk.plots <- arrangeGrob(hawk.form, hawk.main, ncol= 1)
+ggsave("appendix/hawk-plots.png", hawk.plots, width = 10, height = 10)
+
+# all together: helpful, but illegible
+grid.arrange(isolation.plots, hawk.plots)
+
+
+### interactions of individual concerns and partisanship
+
+
+# formation: combine militant internationalism and hawkishness
+form.data$isol.milint <- interaction(form.data$isolation.fac, 
+                                      form.data$mil.inter.fac, sep = "/")
+table(form.data$isol.milint)
+isolhawk.mms.form <- cj(form.data, choice.formula, 
+                           estimate = "mm",
+                           id = ~ ResponseId,  by = ~ isol.milint)
+plot(isolhawk.mms.form, group = "isol.milint", vline = 0.5) +
+  facet_wrap(~ BY) + theme(legend.position = "none", 
+                          axis.text.y = element_text(size = 7))
+
+# maintenance: combine militant internationalism and hawkishness
+main.data$isol.milint <- interaction(main.data$isolation.fac, 
+                                     main.data$mil.inter.fac, sep = "/")
+table(main.data$isol.milint)
+isolhawk.mms.main <- cj(main.data, choice.formula, 
+                        estimate = "mm",
+                        id = ~ ResponseId,  by = ~ isol.milint)
+plot(isolhawk.mms.main, group = "isol.milint", vline = 0.5) +
+  facet_wrap(~ BY) + theme(legend.position = "none", 
+                          axis.text.y = element_text(size = 7))
 
 
 
 # look at interaction of partisanship and isolationism: formation
 # focus on elite cues
-form.data$party.isol <- interaction(form.data$republican, 
-                                       form.data$isolation.fac, sep = "_")
+form.data$party.isol <- interaction(form.data$party.id, 
+                                    form.data$isolation.fac, sep = "_")
 table(form.data$party.isol)
-interaction.mms.form <- cj(form.data, choice ~ region + dem.supp + rep.supp +
-                        regime + trade + jcs.supp + state.supp , 
-                      estimate = "mm_differences",
-                     id = ~ ResponseId,  by = ~ party.isol)
-plot(interaction.mms.form, group = "party.isol", vline = 0.0)
+partyisol.mms.form <- cj(form.data, choice.formula, 
+                         estimate = "mm",
+                         id = ~ ResponseId,  by = ~ party.isol)
+plot(partyisol.mms.form, group = "party.isol", vline = 0.5) +
+  facet_wrap(~ BY) + theme(legend.position = "none", axis.text.y = element_text(size = 8))
 
 
 # look at interaction of partisanship and isolationism: maintenance
 # focus on elite cues
-main.data$party.isol <- interaction(main.data$republican, 
+main.data$party.isol <- interaction(main.data$party.id, 
                                     main.data$isolation.fac, sep = "_")
 table(main.data$party.isol)
-interaction.mms.main <- cj(main.data, choice ~ region + dem.supp + rep.supp +
-                        regime + trade + jcs.supp + state.supp , 
-                      estimate = "mm_differences",
-                      id = ~ ResponseId,  by = ~ party.isol)
-plot(interaction.mms.main, group = "party.isol", vline = 0.0)
-
+partyisol.mms.main <- cj(main.data, choice.formula, 
+                         estimate = "mm",
+                         id = ~ ResponseId,  by = ~ party.isol)
+plot(partyisol.mms.main, group = "party.isol", vline = 0.5) +
+  facet_wrap(~ BY) + theme(legend.position = "none", axis.text.y = element_text(size = 7))
 
 
 # look at interaction of partisanship and hawkishness: formation
 # focus on elite cues
-form.data$party.milint <- interaction(form.data$republican, 
+form.data$party.milint <- interaction(form.data$party.id, 
                                     form.data$mil.inter.fac, sep = "_")
 table(form.data$party.milint)
-interaction.mms.form <- cj(form.data, choice ~ region + dem.supp + rep.supp +
-                             regime + trade + jcs.supp + state.supp , 
-                           estimate = "mm_differences",
+partyhawk.mms.form <- cj(form.data, rate.formula, 
+                           estimate = "mm",
                            id = ~ ResponseId,  by = ~ party.milint)
-plot(interaction.mms.form, group = "party.milint", vline = 0.0)
+plot(partyhawk.mms.form, group = "party.milint", vline = 50) +
+  facet_wrap(~ BY) + theme(legend.position = "none", axis.text.y = element_text(size = 7))
 
 
 # look at interaction of partisanship and hawkishness: maintenance
 # focus on elite cues
-main.data$party.milint <- interaction(main.data$republican, 
+main.data$party.milint <- interaction(main.data$party.id, 
                                     main.data$mil.inter.fac, sep = "_")
 table(main.data$party.milint)
-interaction.mms.main <- cj(main.data, choice ~ region + dem.supp + rep.supp +
-                             regime + trade + jcs.supp + state.supp , 
-                           estimate = "mm_differences",
+partyhawk.mms.main <- cj(main.data, rate.formula, 
+                           estimate = "mm",
                            id = ~ ResponseId,  by = ~ party.milint)
-plot(interaction.mms.main, group = "party.milint", vline = 0.0)
+plot(partyhawk.mms.main, group = "party.milint", vline = 50) +
+  facet_wrap(~ BY) + theme(legend.position = "none", axis.text.y = element_text(size = 7))
+
+
+# three way inter: party and both dispositions
+# maintenance first
+main.data$party.dispo <- interaction(main.data$party.id, 
+                                      main.data$mil.inter.fac,
+                                     main.data$isolation.fac,
+                                     sep = "-")
+table(main.data$party.dispo)
+partydispo.mms.main <- cj(main.data, choice.formula, 
+                         estimate = "mm",
+                         id = ~ ResponseId,  by = ~ party.dispo)
+plot(filter(partydispo.mms.main, !stringr::str_detect(BY, "Independent")), 
+            group = "party.dispo", vline = .5) +
+  facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none", 
+                           axis.text.y = element_text(size = 7)) +
+  scale_color_manual(values = rep("black", 9)) +
+  ggtitle("Partisanship, FP Dispositions, and Alliance Maintenance")
+ggsave("figures/party-dispo-main.png", height = 12, width = 12)
+
+# formation 
+form.data$party.dispo <- interaction(form.data$party.id, 
+                                     form.data$mil.inter.fac,
+                                     form.data$isolation.fac,
+                                     sep = "-")
+table(form.data$party.dispo)
+partydispo.mms.form <- cj(form.data, choice.formula, 
+                          estimate = "mm",
+                          id = ~ ResponseId,  by = ~ party.dispo)
+plot(filter(partydispo.mms.form, !stringr::str_detect(BY, "Independent")), 
+     group = "party.dispo", vline = .5) +
+  facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none",
+                           axis.text.y = element_text(size = 7)) +
+  scale_color_manual(values = rep("black", 9)) +
+  ggtitle("Partisanship, FP Dispositions, and Alliance Formation")
+ggsave("figures/party-dispo-form.png", height = 12, width = 12)
+
+
+# include independents
+# formation 
+plot(partydispo.mms.form, 
+     group = "party.dispo", vline = .5) +
+  facet_wrap(~ BY) + theme(legend.position = "none",
+                           axis.text.y = element_text(size = 4)) +
+  scale_color_manual(values = rep("black", 12)) +
+  ggtitle("Partisanship, FP Dispositions, and Alliance Formation")
+
+# maintenance
+plot(partydispo.mms.main, 
+     group = "party.dispo", vline = .5) +
+  facet_wrap(~ BY) + theme(legend.position = "none",
+                           axis.text.y = element_text(size = 4)) +
+  scale_color_manual(values = rep("black", 12)) +
+  ggtitle("Partisanship, FP Dispositions, and Alliance Maintenance")
 
 
 
 
-## look at open-ended questions
-form.open <- read.csv("data/formation-open-question.csv")
-main.open <- read.csv("data/maintenance-open-question.csv")
-
-# formation data
-lapply(form.open[, 2:8], function(x) sum(x, na.rm = TRUE))
-table(form.open$other)
-# maintenance data
-lapply(main.open[, 2:8], function(x) sum(x, na.rm = TRUE))
-table(main.open$other)
 
 
 
