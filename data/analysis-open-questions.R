@@ -166,10 +166,12 @@ table(openq.main$benefits)
 
 # tabulate foreign policy dispositions by party attachment
 # formation 
+table(openq.form$party.id, openq.form$mil.inter)
 table(openq.form$party.id, openq.form$mil.inter.fac)
 table(openq.form$party.id, openq.form$isolation.fac)
 
 # maintenance 
+table(openq.main$party.id, openq.main$mil.inter)
 table(openq.main$party.id, openq.main$mil.inter.fac)
 table(openq.main$party.id, openq.main$isolation.fac)
 
@@ -199,6 +201,10 @@ table(openq.main$party.dispo)
 # economic interests and parties
 table(openq.form$party.id, openq.form$exports.fac)
 table(openq.main$party.id, openq.main$exports.fac)
+
+# economic interests and dispositions
+table(openq.form$exports.fac, openq.form$mil.inter.fac)
+table(openq.form$exports.fac, openq.form$isolation.fac)
 
 
 # plot estimated support by partisan str

@@ -260,10 +260,11 @@ cjoint.data$isolation.fac <- factor(ifelse(cjoint.data$isolation.num > 3, "Agree
                                    #  ifelse(cjoint.data$isolation.num == 3, "Neutral",      
                                           "Disagree/Neutral"),
                                     levels = c("Disagree/Neutral", "Agree"))
+print("Isolationism")
+print(table(cjoint.data$isolation.fac))
 cjoint.data$isolation.fac <- recode(cjoint.data$isolation.fac,
                                     "Disagree/Neutral" = "International",
                                     "Agree" = "Isolation")
-print("Isolationism")
 print(table(cjoint.data$isolation.fac))
 
 # militant internationalism
@@ -275,6 +276,8 @@ cjoint.data$mil.inter <- cjoint.data$peace.str.num + cjoint.data$war.unf.num -
   cjoint.data$force.worse.num
 cjoint.data$mil.inter.fac <- cut(cjoint.data$mil.inter, 2)
 print("Mil. Inter.")
+table(cjoint.data$mil.inter)
+print(table(cjoint.data$mil.inter.fac))
 cjoint.data$mil.inter.fac <- recode(cjoint.data$mil.inter.fac,
                                     "(-3.01,3]" = "Dove",
                                     "(3,9.01]" = "Hawk")
