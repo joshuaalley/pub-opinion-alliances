@@ -281,4 +281,45 @@ main.pop <- model_pAMCE(formula = rating ~ dem.supp + rep.supp + jcs.supp + stat
                          target_type = "target_data",
                          boot = 1000, seed = 12)
 summary(main.pop, sample = TRUE)
-plot(main.pop, diagnose = TRUE)
+plot(main.pop)
+
+# plot population amce: maintenance
+sum.main.pop <- summary(main.pop, sample = TRUE) 
+sum.main.pop$target_dist <- recode(sum.main.pop$target_dist, 
+                        "target_1" = "Population AMCE",
+                        "sample AMCE" = "Sample AMCE")
+sum.main.pop$level <- factor(sum.main.pop$level, ordered = TRUE,
+                             levels = rev(unique(sum.main.pop$level)))
+
+# plot 
+ggplot(sum.main.pop, aes(x = Estimate, y = level,
+                         group = target_dist,
+                         color = target_dist)) +
+    geom_vline(xintercept = 0) +
+    geom_pointrange(aes(xmin = Estimate - 1.96*`Std. Error`,
+                        xmax = Estimate + 1.96*`Std. Error`),
+                    position = position_dodge(width = 1)) +
+    labs(title = "Population AMCE: Alliance Maintenance",
+         y = "Attribute Level", color = "Target")
+ggsave("appendix/pop-amce-main.png", height = 10, width = 10)
+
+
+# plot population amce: formation
+sum.form.pop <- summary(form.pop, sample = TRUE) 
+sum.form.pop$target_dist <- recode(sum.form.pop$target_dist, 
+                                   "target_1" = "Population AMCE",
+                                   "sample AMCE" = "Sample AMCE")
+sum.form.pop$level <- factor(sum.form.pop$level, ordered = TRUE,
+                             levels = rev(unique(sum.form.pop$level)))
+
+# plot 
+ggplot(sum.form.pop, aes(x = Estimate, y = level,
+                         group = target_dist,
+                         color = target_dist)) +
+  geom_vline(xintercept = 0) +
+  geom_pointrange(aes(xmin = Estimate - 1.96*`Std. Error`,
+                      xmax = Estimate + 1.96*`Std. Error`),
+                  position = position_dodge(width = 1)) +
+  labs(title = "Population AMCE: Alliance Formation",
+       y = "Attribute Level", color = "Target")
+ggsave("appendix/pop-amce-form.png", height = 10, width = 10)
