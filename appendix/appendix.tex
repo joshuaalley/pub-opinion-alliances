@@ -196,6 +196,9 @@ In the alliance formation experiment, elite cues are less influential than allie
 How these differences would alter the conclusion of the subgroup analysis is unclear, however. 
 
 
+\newpage
+
+
 \section{Open-Ended Alliance Attitudes} 
 
 
@@ -213,8 +216,33 @@ These three variables are not mutually exclusive, because respondents often ment
 
 Because individuals highlight multiple alliance attributes, I analyze the open-ended responses with a Bayesian multivariate probit model, which captures correlations between the different response classes. 
 Each equation of the model predicts open-ended response content using individual characteristics, including the strength of individual partisan attachment, international economic interests, gender, race, education, region and income. 
-Because the model has many parameters, I employ Bayesian estimation to regularize the estimates. 
+To ensure that the coefficient magnitudes are comparable, I rescaled the continuous variables by two standard deviations. 
+I estimate the trivariate probit model using the Joint Generalized Regression estimator of \citet{Braumoelleretal2018}.\footnote{The pre-analysis plan stated an intent to use Bayesian estimation of the multivariate probit model. Unfortunately, this proved impractical, as the model would not converge and was generally unstable.} 
+I fit separate trivariate probit models to the open ended responses from each experiment. 
 
+
+\begin{figure}
+	\centering
+		\includegraphics[width=0.95\textwidth]{open-questions-res.png}
+	\caption{Coefficient estimates from trivariate probit models of open-ended response content in the alliance formation and maintenance experiments. Points mark the coefficient estimates, and error bars capture the 95\% confidence intervals. Colors differentiate between the formation and maintenance experiments. All continuous variables rescaled by two deviations so the coefficient magnitudes are comparable.}
+	\label{fig:openq-res}
+\end{figure}
+
+
+
+I plot the probit coefficients for each equation of two models in \autoref{fig:openq-res}. 
+This figure reveals further patterns that are consistent with the results in the manuscript.
+As isolationism increases, individuals are less likely to mention elite cues as a key factor in their responses.\footnote{Two respondents in the formation experiment explicitly labeled themselves as isolationists.} 
+More hawkish individuals are less likely to mention any experimental treatment, especially in the maintenance experiment. 
+Last, stronger partisan attachment makes individuals less likely to mention alliance or partner attributes. 
+
+
+There are some other noteworthy estimates.
+Greater education is positively correlated with mentioning elite support. 
+A two-standard deviation increase in age also increases the likelihood of mentioning all three factors. 
+
+
+\newpage
 
 
 \section{Ratings Results}

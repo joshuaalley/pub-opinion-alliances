@@ -13,7 +13,9 @@ library(gridExtra)
 library(FindIt)
 library(ggcarly)
 library(factorEx)
+library(GJRM)
 library(rstan)
+library(shinystan)
 # set stan options
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
@@ -40,6 +42,7 @@ conflict_prefer("Position", "ggplot2")
 conflict_prefer("rcond", "Matrix")
 conflict_prefer("spectrum", "igraph")
 conflict_prefer("traceplot", "rstan")
+conflict_prefer("mm", "cregg")
 
 # set seed
 set.seed(12)

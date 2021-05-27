@@ -67,6 +67,10 @@ open.clean <- function(data){
   print(table(covar.data$gender.fac))
   covar.data$mil.serv <- as.factor(covar.data$mil.serv)
   
+  # hispanic
+  covar.data$hispanic <- ifelse(covar.data$hispanic > 1, 1, 0)
+  covar.data$white <- ifelse(covar.data$ethnicity == 1, 1, 0)
+  
   # mapping for agree/disagree questions
   mapping <- c("Strongly disagree" = 1, "Somewhat disagree" = 2,
                "Neither agree nor disagree" = 3,
@@ -175,6 +179,11 @@ table(openq.main$party.id, openq.main$mil.inter)
 table(openq.main$party.id, openq.main$mil.inter.fac)
 table(openq.main$party.id, openq.main$isolation.fac)
 
+
+# count mentions of isolation
+sum(str_detect(openq.form$open.question, "isolationist"))
+sum(str_detect(openq.main$open.question, "isolation"))
+
 #isolation and hawkishness
 ggplot(openq.form, aes(x = mil.inter, y = isolation.num)) +
     facet_wrap(~ party.id) +
@@ -243,3 +252,259 @@ partisan.str.main <- openq.main %>%
 ggplot(partisan.str.main, aes(x = partisan.str, y = value,
                               color = emphasis)) +
   geom_point() + geom_line() + theme_bw()
+
+
+
+### multivariate probit analysis 
+
+
+# use GJRM w/ T copula for errors
+
+# elite formula
+elite.formula <- elite.supp ~ partisan.str + isolation.num + mil.inter + 
+                                age + gender + white +
+                                hhi + education + net.exports
+
+# alliance attr formula
+all.formula <- alliance.attr ~ partisan.str + isolation.num + mil.inter + 
+  age + gender + white +
+  hhi + education + net.exports
+
+# partner attr formula
+part.formula <- partner.attr ~ partisan.str + isolation.num + mil.inter + 
+  age + gender + white +
+  hhi + education + net.exports
+
+
+
+### formation results
+
+# clean data to get variables on same scale
+# rescale continuous by 2sd
+# formation
+openq.form.clean <- select(openq.form,
+                           elite.supp, alliance.attr, partner.attr,
+                           partisan.str, isolation.num, mil.inter,
+                             age, gender, white,
+                             hhi, education, net.exports)
+openq.form.clean[, 4:ncol(openq.form.clean)] <- apply(
+  openq.form.clean[, 4:ncol(openq.form.clean)], 2, 
+  function(x) rescale(x, binary.inputs = "0/1")
+)
+# maintenance
+openq.main.clean <- select(openq.main,
+                           elite.supp, alliance.attr, partner.attr,
+                           partisan.str, isolation.num, mil.inter,
+                           age, gender, white,
+                           hhi, education, net.exports)
+openq.main.clean[, 4:ncol(openq.main.clean)] <- apply(
+  openq.main.clean[, 4:ncol(openq.main.clean)], 2, 
+  function(x) rescale(x, binary.inputs = "0/1")
+)
+
+# start with univariate models
+# elite 
+form.elite.glm <- glm(elite.formula,
+                      family = binomial(link = "probit"),
+                      data = openq.form.clean)
+summary(form.elite.glm)
+
+# alliance attr
+form.all.glm <- glm(all.formula,
+                      family = binomial(link = "probit"),
+                      data = openq.form.clean)
+summary(form.all.glm)
+
+# partner attr
+form.part.glm <- glm(part.formula,
+                    family = binomial(link = "probit"),
+                    data = openq.form.clean)
+summary(form.part.glm)
+
+
+# GJRM: fit trivariate probit 
+gjrm.form <- gjrm(list(elite.formula, all.formula, part.formula),
+                  data = openq.form.clean,
+                  margins = c("probit", "probit", "probit"),
+                  Model = "T", 
+                  BivD = "T")
+# No difference in AIC or convergence across copulas
+conv.check(gjrm.form)
+AIC(gjrm.form)
+summary(gjrm.form)
+
+
+
+### maintenance results
+
+# start with univariate models
+# elite 
+main.elite.glm <- glm(elite.formula,
+                      family = binomial(link = "probit"),
+                      data = openq.main.clean)
+summary(main.elite.glm)
+
+# alliance attr
+main.all.glm <- glm(all.formula,
+                    family = binomial(link = "probit"),
+                    data = openq.main.clean)
+summary(main.all.glm)
+
+# partner attr
+main.part.glm <- glm(part.formula,
+                     family = binomial(link = "probit"),
+                     data = openq.main.clean)
+summary(main.part.glm)
+
+
+# GJRM: fit trivariate probit 
+gjrm.main <- gjrm(list(elite.formula, all.formula, part.formula),
+                  data = openq.main.clean,
+                  margins = c("probit", "probit", "probit"),
+                  Model = "T", 
+                  BivD = "T")
+# No difference in AIC or convergence across copulas
+conv.check(gjrm.main)
+AIC(gjrm.main)
+summary(gjrm.main)
+
+
+
+# plot results 
+
+gjrm.sum <- function(model){
+  summary.gjrm <- summary(model)
+  
+  variables <-  c("(Intercept)",  
+                  "Partisan Strength",
+                  "Isolationism", "Militant Assertiveness",
+                  "Age", "Female", "White",
+                  "Income", "Education", "Export Orientation")
+
+
+# tabulate the results 
+print(summary.gjrm[["tableP1"]]) # elite
+print(summary.gjrm[["tableP2"]]) # alliance
+print(summary.gjrm[["tableP3"]]) # partner
+ 
+# Combine all the results in a single table. 
+# Start with elite table
+elite.tab <- as.data.frame(summary.gjrm[["tableP1"]][, 1:2])
+elite.tab$variable <- factor(variables,
+                                ordered = TRUE,
+                                levels = rev(variables))
+
+# table for alliance attr
+all.tab <- as.data.frame(summary.gjrm[["tableP2"]][, 1:2])
+all.tab$variable <- factor(variables,
+                               ordered = TRUE,
+                               levels = rev(variables))
+# table for partner attr
+part.tab <- as.data.frame(summary.gjrm[["tableP2"]][, 1:2])
+part.tab$variable <- factor(variables,
+                                ordered = TRUE,
+                                levels = rev(variables))
+
+joint.tab <- rbind.data.frame(elite.tab, all.tab, part.tab)
+joint.tab$equation <- c(rep("Elite Support", 10),
+                     rep("Alliance Attribute", 10),
+                     rep("Partner Attribute", 10))
+joint.tab
+
+}
+
+# output and combine
+form.gjrm.res <- gjrm.sum(gjrm.form)
+form.gjrm.res$Model <- "Formation"
+main.gjrm.res <- gjrm.sum(gjrm.main)
+main.gjrm.res$Model <- "Maintenance"
+
+full.gjrm.res <- bind_rows(form.gjrm.res, main.gjrm.res) %>%
+                   filter(variable != "(Intercept)")
+
+# plot probit coefs 
+ggplot(full.gjrm.res, aes(x = Estimate, y = variable,
+                          group = Model,
+                          color = Model)) +
+  facet_wrap(~ equation) +
+  geom_vline(xintercept = 0) +
+  geom_pointrange(aes(xmin = Estimate - 1.96*`Std. Error`,
+                      xmax = Estimate + 1.96*`Std. Error`),
+                  position = position_dodge(width = 0.5)) +
+  labs(title = "Trivariate Probit Models of Open-Ended Question Content",
+       y = "Variable")
+ggsave("appendix/open-questions-res.png", height = 6, width = 8)
+  
+
+
+
+### Bayesian estimation (unfortunately unstable)
+# first, compile model code
+stan.mvprob <- stan_model("data/multivar-probit.stan")
+
+# formation data
+form.open.outcomes <- as.matrix(
+  select(openq.form[complete.cases(openq.form), ], 
+         elite.supp,
+          alliance.attr, partner.attr)
+)
+
+form.open.vars <- as.matrix(
+  select(openq.form[complete.cases(openq.form), ],
+         partisan.str, isolation.num, mil.inter, 
+          age, gender, hispanic,
+          hhi, education, net.exports)
+)
+
+
+# create stan data
+form.data.mvprob <- list(
+  N = nrow(form.open.vars),
+  K = ncol(form.open.vars),
+  D = ncol(form.open.outcomes),
+  y = form.open.outcomes,
+  x = form.open.vars
+)
+
+# model formation emphases
+form.open.res <- sampling(stan.mvprob, form.data.mvprob,
+                          chains = 4, iter = 2000,
+                          warmup = 1000,
+                          cores = 4,
+                          control = list(
+                            max_treedepth = 15,
+                            adapt_delta = .85
+                          ))
+
+
+
+# maintenance data
+main.open.outcomes <- as.matrix(
+  select(openq.main[complete.cases(openq.main), ], 
+         elite.supp,
+         alliance.attr, partner.attr)
+)
+
+main.open.vars <- as.matrix(
+  select(openq.main[complete.cases(openq.main), ],
+         partisan.str, isolation.num, mil.inter, 
+         age, gender, hispanic,
+         hhi, education, net.exports)
+)
+
+
+# create stan data
+main.data.mvprob <- list(
+  N = nrow(main.open.vars),
+  K = ncol(main.open.vars),
+  D = ncol(main.open.outcomes),
+  y = main.open.outcomes,
+  x = main.open.vars
+)
+
+# model formation emphases
+main.open.res <- sampling(stan.mvprob, main.data.mvprob,
+                          chains = 4, iter = 2000,
+                          warmup = 1000,
+                          cores = 4)
+

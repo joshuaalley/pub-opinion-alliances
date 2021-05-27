@@ -455,7 +455,7 @@ table(main.data$party.dispo)
 partydispo.mms.main <- cj(main.data, choice.formula, 
                          estimate = "mm",
                          id = ~ ResponseId,  by = ~ party.dispo)
-plot(filter(partydispo.mms.main, !stringr::str_detect(BY, "Independent")), 
+plot(filter(partydispo.mms.main, !str_detect(BY, "Independent")), 
             group = "party.dispo", vline = .5) +
   facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none", 
                            axis.text.y = element_text(size = 7)) +
@@ -472,7 +472,7 @@ table(form.data$party.dispo)
 partydispo.mms.form <- cj(form.data, choice.formula, 
                           estimate = "mm",
                           id = ~ ResponseId,  by = ~ party.dispo)
-plot(filter(partydispo.mms.form, !stringr::str_detect(BY, "Independent")), 
+plot(filter(partydispo.mms.form, !str_detect(BY, "Independent")), 
      group = "party.dispo", vline = .5) +
   facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none",
                            axis.text.y = element_text(size = 7)) +
@@ -507,7 +507,7 @@ plot(partydispo.mms.main,
 partydispo.rate.form <- cj(form.data, rate.formula, 
                           estimate = "mm",
                           id = ~ ResponseId,  by = ~ party.dispo)
-plot(filter(partydispo.rate.form, !stringr::str_detect(BY, "Independent")), 
+plot(filter(partydispo.rate.form, !str_detect(BY, "Independent")), 
      group = "party.dispo", vline = 50) +
   facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none",
                                       axis.text.y = element_text(size = 7)) +
@@ -519,7 +519,7 @@ ggsave("appendix/party-dispo-formapp.png", height = 12, width = 12)
 partydispo.rate.main <- cj(main.data, rate.formula, 
                            estimate = "mm",
                            id = ~ ResponseId,  by = ~ party.dispo)
-plot(filter(partydispo.rate.main, !stringr::str_detect(BY, "Independent")), 
+plot(filter(partydispo.rate.main, !str_detect(BY, "Independent")), 
      group = "party.dispo", vline = 50) +
   facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none",
                                       axis.text.y = element_text(size = 7)) +
