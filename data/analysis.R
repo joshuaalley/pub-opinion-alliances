@@ -502,6 +502,30 @@ plot(partydispo.mms.main,
 
 
 
+# rating results for appendix
+# formation
+partydispo.rate.form <- cj(form.data, rate.formula, 
+                          estimate = "mm",
+                          id = ~ ResponseId,  by = ~ party.dispo)
+plot(filter(partydispo.rate.form, !stringr::str_detect(BY, "Independent")), 
+     group = "party.dispo", vline = 50) +
+  facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none",
+                                      axis.text.y = element_text(size = 7)) +
+  scale_color_manual(values = rep("black", 9)) +
+  ggtitle("Rating: Partisanship, FP Dispositions, and Alliance Formation")
+ggsave("appendix/party-dispo-formapp.png", height = 12, width = 12)
+
+# maintenance
+partydispo.rate.main <- cj(main.data, rate.formula, 
+                           estimate = "mm",
+                           id = ~ ResponseId,  by = ~ party.dispo)
+plot(filter(partydispo.rate.main, !stringr::str_detect(BY, "Independent")), 
+     group = "party.dispo", vline = 50) +
+  facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none",
+                                      axis.text.y = element_text(size = 7)) +
+  scale_color_manual(values = rep("black", 9)) +
+  ggtitle("Rating: Partisanship, FP Dispositions, and Alliance Maintenance")
+ggsave("appendix/party-dispo-mainapp.png", height = 12, width = 12)
 
 
 

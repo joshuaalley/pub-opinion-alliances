@@ -177,7 +177,7 @@ The population AMCE estimates have much higher uncertainty, so some are not stat
 \begin{figure}
 	\centering
 		\includegraphics[width=0.95\textwidth]{pop-amce-main.png}
-	\caption{Estimated AMCE of difference alliance attributes on support for alliance maintenance under alternative distributional assumptions.}
+	\caption{Estimated AMCE of difference alliance attributes on support for alliance maintenance under alternative distributional assumptions. In this model-based exploratory analysis, the population distribution is based on observed U.S. alliances.}
 	\label{fig:pop-amce-main}
 \end{figure}
 
@@ -185,14 +185,15 @@ The population AMCE estimates have much higher uncertainty, so some are not stat
 \begin{figure}
 	\centering
 		\includegraphics[width=0.95\textwidth]{pop-amce-form.png}
-	\caption{Estimated AMCE of difference alliance attributes on support for alliance maintenance under alternative distributional assumptions.}
+	\caption{Estimated AMCE of difference alliance attributes on support for alliance maintenance under alternative distributional assumptions. In this model-based exploratory analysis, the population distribution is based on a mix of all alliances and observed U.S. alliances.}
 	\label{fig:pop-amce-form}
 \end{figure}
 
 % summarize differences
 There are also some differences between the population and sample AMCE estimates. 
-Trade exerts a stronger influence on alliance attitudes under different marginal distributions of the attributes. 
+Trade exerts a stronger influence on alliance attitudes under different marginal attribute distributions of the attributes. 
 In the alliance formation experiment, elite cues are less influential than allied democracy, trade and capability. 
+How these differences would alter the conclusion of the subgroup analysis is unclear, however. 
 
 
 \section{Open-Ended Alliance Attitudes} 
@@ -213,6 +214,74 @@ These three variables are not mutually exclusive, because respondents often ment
 Because individuals highlight multiple alliance attributes, I analyze the open-ended responses with a Bayesian multivariate probit model, which captures correlations between the different response classes. 
 Each equation of the model predicts open-ended response content using individual characteristics, including the strength of individual partisan attachment, international economic interests, gender, race, education, region and income. 
 Because the model has many parameters, I employ Bayesian estimation to regularize the estimates. 
+
+
+
+\section{Ratings Results}
+
+In the experiment, I ask respondents to answer yes or no on alliance formation or maintenance and provide a numeric rating of the alliance. 
+Ratings range from zero to 100, where 0 is a poor alliance and 100 is a great alliance. 
+This section of the appendix shows that the choice and rating results are very similar. 
+To do this, \autoref{fig:formation-plots} and \autoref{fig:maintenance-plots} compare the unconditional AMCE estimates for the rating and choice measures in both experiments.  
+
+
+\begin{figure}
+	\centering
+		\includegraphics[width=0.95\textwidth]{formation-plots.png}
+	\caption{Unconditional AMCE estimates for alliance formation choices and ratings.}
+	\label{fig:formation-plots}
+\end{figure}
+
+
+Regardless of the outcome measure, I make similar inferences about treatment effects in the two conjoint experiments. 
+Democracy and elite cues are the dominant influences on support for new and existing alliances. 
+Inferences about more marginal factors are also similar, with some exceptions. 
+
+
+The differences between the choice and ratings results are fairly minor. 
+In the alliance formation experiment, the issue linkages AMCEs are somewhat reversed, and past support in war from a prospective ally has a much stronger effect on ratings. 
+For alliance maintenance, there is a substantial difference in ratings between alliances with an annual cost of \$15 billion, relative to \$10 billion. 
+The ratings results also show more evidence of a small positive impact for defense cooperation and recent military cooperation. 
+
+
+
+\begin{figure}
+	\centering
+		\includegraphics[width=0.95\textwidth]{maintenance-plots.png}
+	\caption{Unconditional AMCE estimates for alliance maintenance choices and ratings.}
+	\label{fig:maintenance-plots}
+\end{figure}
+
+
+Although the choice outcome is more relevant to the questions at hand, the rating measure has a more intuitive interpretation. 
+On a scale from zero to 100, most factors have a minimal or small effect of a few points. 
+Only partisan elite cues and consolidated alliance democracy increase alliance ratings by more than three points. 
+
+
+In addition to the unconditional impact of the conjoint alliance ratings, partisanship and foreign policy dispositions create substantial differences in alliance ratings.
+\autoref{fig:party-dispo-form} and \autoref{fig:party-dispo-main} plot the marginal means of individual alliance ratings across partisanship and foreign policy dispositions. 
+The patterns in these figures are very similar to the choice outcome results in the manuscript.  
+
+\begin{figure}
+	\centering
+		\includegraphics[width=0.95\textwidth]{party-dispo-formapp.png}
+	\caption{Marginal means of ratings for hypothetical new alliances across party identification and foreign policy dispositions. For each group, the estimates mark the marginal mean of support for alliance participation under different alliance treatments. Components marked with abbreviated labels to make the plot more legible. Independents omitted.}
+	\label{fig:party-dispo-form}
+\end{figure}
+
+
+While foreign policy dispositions clearly impact alliance ratings, there are also partisan differences.
+Hawkish and dovish Republicans have the lowest alliance ratings. 
+Hawkish and isolationist Democrats express high ratings of alliances in general.  
+Last, hawkish Republicans and internationalist Democrats are most responsive to elite cues. 
+
+
+\begin{figure}
+	\centering
+		\includegraphics[width=0.95\textwidth]{party-dispo-mainapp.png}
+	\caption{Marginal means of ratings for hypothetical existing alliances across party identification and foreign policy dispositions. For each group, the estimates mark the marginal mean of support for alliance participation under different alliance treatments. Components marked with abbreviated labels to make the plot more legible. Independents omitted.}
+	\label{fig:party-dispo-main}
+\end{figure}
 
 
 \newpage
