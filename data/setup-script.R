@@ -14,11 +14,6 @@ library(FindIt)
 library(ggcarly)
 library(factorEx)
 library(GJRM)
-library(rstan)
-library(shinystan)
-# set stan options
-options(mc.cores = parallel::detectCores())
-rstan_options(auto_write = TRUE)
 
 # manage conflicts
 conflict_scout()
@@ -37,11 +32,9 @@ conflict_prefer("simplify", "purrr")
 conflict_prefer("as_factor", "forcats")
 conflict_prefer("chol2inv", "Matrix")
 conflict_prefer("decompose", "igraph")
-conflict_prefer("extract", "rstan")
 conflict_prefer("Position", "ggplot2")
 conflict_prefer("rcond", "Matrix")
 conflict_prefer("spectrum", "igraph")
-conflict_prefer("traceplot", "rstan")
 conflict_prefer("mm", "cregg")
 
 # set seed

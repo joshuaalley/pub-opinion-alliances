@@ -200,12 +200,28 @@ ggplot(openq.main, aes(x = mil.inter, y = isolation.num,
                        color = party.id)) +
   geom_jitter(alpha = .5)
 
-# numbers of each
+# tabulate number of respondents in each disposition
+# numbers of each: maintenance
 openq.main$party.dispo <- interaction(openq.main$party.id, 
                                       openq.main$mil.inter.fac,
                                       openq.main$isolation.fac,
-                                      sep = "_")
+                                      sep = "-")
 table(openq.main$party.dispo)
+xtable::xtable(table(openq.main$party.dispo),
+               label = "tab:party-dispo-main",
+               caption = "Number of respondents in each group of partisanship 
+               and foreign policy disposition for the alliance maintenance experiment.")
+
+# formation
+openq.form$party.dispo <- interaction(openq.form$party.id, 
+                                      openq.form$mil.inter.fac,
+                                      openq.form$isolation.fac,
+                                      sep = "-")
+table(openq.form$party.dispo)
+xtable::xtable(table(openq.form$party.dispo),
+               label = "tab:party-dispo-form",
+               caption = "Number of respondents in each group of partisanship 
+               and foreign policy disposition for the alliance formation experiment.")
 
 # economic interests and parties
 table(openq.form$party.id, openq.form$exports.fac)
