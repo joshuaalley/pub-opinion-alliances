@@ -440,4 +440,32 @@ main.data <- feature.clean(data = maintenance.data,
 
 
 
+# count distribution of each treatment
+form.treat <- apply(form.data[, 2:15], 2, table)
+form.treat <- plyr::ldply(form.treat, data.frame)
+main.treat <- apply(main.data[, 2:15], 2, table)
+main.treat <- plyr::ldply(main.treat, data.frame)
 
+
+# plot
+main.attr.freq <- ggplot(main.treat, aes(x = Freq, y = Var1, 
+                       fill = .id)) +
+                    geom_bar(stat = "identity") +
+                    theme(legend.position = "none") +
+                    labs(title = "Maintenance: Frequency of Conjoint Attributes",
+                      x = "Frequency", y = "Attribute Level")
+main.attr.freq
+
+
+form.attr.freq <- ggplot(form.treat, aes(x = Freq, y = Var1, 
+                                         fill = .id)) +
+  geom_bar(stat = "identity") +
+  theme(legend.position = "none") +
+  labs(title = "Formation: Frequency of Conjoint Attributes",
+       x = "Frequency", y = "Attribute Level")
+form.attr.freq
+
+# combine plots 
+grid.arrange(form.attr.freq, main.attr.freq)
+treat.freq <- arrangeGrob(form.attr.freq, main.attr.freq)
+ggsave("appendix/treat-freq.png", treat.freq, height = 7, width = 8)
