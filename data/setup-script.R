@@ -36,6 +36,7 @@ conflict_prefer("Position", "ggplot2")
 conflict_prefer("rcond", "Matrix")
 conflict_prefer("spectrum", "igraph")
 conflict_prefer("mm", "cregg")
+conflict_prefer("collapse", "dplyr")
 
 # set seed
 set.seed(12)

@@ -73,11 +73,11 @@ plot(mm(main.data, choice.formula,
 
 amce.main.choice <- amce(main.data, choice.formula,
                          id = ~ ResponseId)
-main.choice.plot <- plot(amce.main.choice) + theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
-                   xlim(-.07, .13) +
-                 labs(title = "Maintain Alliance?")
+plot(amce.main.choice) + 
+  theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
+  xlim(-.07, .13) +
+  labs(title = "Maintain Alliance?")
 main.choice.plot
-ggsave("figures/maintain-plot.png", main.choice.plot, width = 8, height = 8)
 
 
 # rating
@@ -123,8 +123,6 @@ mmdiff.main.part
 # plot marginal means and differences
 grid.arrange(mmplot.main.part, mmdiff.main.part)
 part.main.plot <- arrangeGrob(mmplot.main.part, mmdiff.main.part)
-ggsave("figures/partisan-main.png", part.main.plot,
-       width = 10, height = 11)
 
 
 main.part.plot <- plot(rbind(mm.main.part, mmd.main.part)) + 
@@ -219,7 +217,7 @@ form.choice.plot <- plot(amce.form.choice) + theme(legend.position = "none", axi
                      xlim(-.07, .13) +
                      labs(title = "Form Alliance?")
 form.choice.plot
-ggsave("figures/formation-plot.png", form.choice.plot, width = 8, height = 8)
+ggsave("appendix/formation-plot.png", form.choice.plot, width = 8, height = 8)
 
 
 # rating
@@ -237,13 +235,6 @@ form.rate.plot
 grid.arrange(form.choice.plot, form.rate.plot, ncol= 2)
 formation.plots <- arrangeGrob(form.choice.plot, form.rate.plot, ncol = 2)
 ggsave("appendix/formation-plots.png", formation.plots, width = 10, height = 8)
-
-
-# combine formation and maintenance choice plots
-grid.arrange(form.choice.plot, main.choice.plot, ncol= 2)
-joint.amce.plots <- arrangeGrob(form.choice.plot, main.choice.plot, ncol = 2)
-ggsave("figures/joint-amce-plots.png", joint.amce.plots, width = 10, height = 8)
-
 
 
 # partisan subgroups
@@ -268,17 +259,15 @@ mmdiff.form.part <- plot(mmd.form.part) +
 mmdiff.form.part
 # plot marginal means and differences
 grid.arrange(mmplot.form.part, mmdiff.form.part)
-part.form.plot <- arrangeGrob(mmplot.form.part, mmdiff.form.part)
-ggsave("figures/partisan-form.png", part.form.plot,
-       width = 10, height = 11)
 
 
-form.part.plot <- plot(rbind(mm.form.part, mmd.form.part)) + 
-  theme_grey() +
-  theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
-  facet_wrap(~BY, ncol = 3L, scales = "free_x") + 
-  ggtitle("Party ID and Alliance Formation")
-form.part.plot
+# combine formation and maintenance partisanship plots
+grid.arrange(part.form.plot, part.main.plot, ncol= 2)
+joint.part.plots <- arrangeGrob(part.form.plot, part.main.plot, ncol= 2)
+ggsave("appendix/joint-part-plots.png", joint.part.plots, width = 12, height = 10)
+
+
+
 # f-test shows clear differences
 cj_anova(form.data, choice.formula,
          id = ~ ResponseId, by = ~ party.id)
@@ -287,10 +276,6 @@ plot(amce_diffs(form.data, choice.formula,
                 id = ~ ResponseId, by = ~ party.id)) +
       facet_wrap(~ BY, ncol = 3L)
 
-# combine formation and maintenance partisanship plots
-grid.arrange(part.form.plot, part.main.plot, ncol= 2)
-joint.part.plots <- arrangeGrob(part.form.plot, part.main.plot, ncol= 2)
-ggsave("figures/joint-part-plots.png", joint.part.plots, width = 12, height = 10)
 
 
 # split by export interests 
@@ -312,11 +297,6 @@ exports.form
 # f-test shows no clear differences
 cj_anova(form.data[!is.na(form.data$exports.fac), ], choice.formula,
          id = ~ ResponseId, by = ~ exports.fac)
-
-# combine formation and maintenance choice plots
-grid.arrange(exports.form, exports.main, ncol= 2)
-joint.econ.plots <- arrangeGrob(exports.form, exports.main, ncol= 2)
-ggsave("figures/joint-econ-plots.png", joint.econ.plots, width = 12, height = 10)
 
 
 # split by isolationism
@@ -470,7 +450,6 @@ plot(filter(partydispo.mms.main, !str_detect(BY, "Independent")),
                            axis.text.y = element_text(size = 7)) +
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Partisanship, FP Dispositions, and Alliance Maintenance")
-ggsave("figures/party-dispo-main.png", height = 12, width = 12)
 
 # formation 
 form.data$party.dispo <- interaction(form.data$party.id, 
@@ -487,7 +466,6 @@ plot(filter(partydispo.mms.form, !str_detect(BY, "Independent")),
                            axis.text.y = element_text(size = 7)) +
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Partisanship, FP Dispositions, and Alliance Formation")
-ggsave("figures/party-dispo-form.png", height = 12, width = 12)
 
 
 # include independents
