@@ -44,15 +44,28 @@ rate.formula <- formula(rating ~ dem.supp + rep.supp + jcs.supp + state.supp +
                        defense.coop + issue.link + cap + mil.coop) #gender)
 
 
+# check differences by task 
 # maintenance
-main.data$task <- factor(main.data$task)
+main.data$task <- as.factor(main.data$task)
 # check differences by task
-cj_anova(main.data, rate.formula,
+cj_anova(main.data, choice.formula,
      id = ~ ResponseId, by = ~ task)
-# no clear difference: plot is illegible
-mm.task <- cj(main.data, rate.formula, 
-            id = ~ ResponseId, estimate = "mm", by = ~ task)
-plot(mm.task, group = "task", vline = 0.5)
+# slight difference driven by high support on task 1. 
+plot(cj(main.data, choice.formula, 
+            id = ~ ResponseId, estimate = "mm", by = ~ task),
+     group = "task", vline = 0.5)
+
+# formation
+form.data$task <- as.factor(form.data$task)
+cj_anova(form.data, choice.formula,
+         id = ~ ResponseId, by = ~ task)
+# no clear difference
+plot(cj(form.data, choice.formula, 
+        id = ~ ResponseId, estimate = "mm", by = ~ task),
+     group = "task", vline = 0.5)
+
+
+
 
 # choice
 plot(mm(main.data, choice.formula,
@@ -195,10 +208,6 @@ cj_anova(main.data[!is.na(main.data$mil.inter.fac), ], choice.formula,
 
 ### formation analysis ### 
 
-# check differences by task
-cj_anova(form.data, choice.formula,
-         id = ~ ResponseId, by = ~ task)
-# no clear difference
 
 # choice
 plot(mm(form.data, choice.formula,
