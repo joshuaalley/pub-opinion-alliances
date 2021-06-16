@@ -158,7 +158,7 @@ choice.data <- select(data, ResponseId,
 covar.data <- select(data, ResponseId, 
                 age, gender, hhi, ethnicity,
                 hispanic, education, political_party,	
-                region,	zip, Q11,
+                region,	zip, Q11, Q4.1,
                 Q18, Q1, Q6, Q3, Q7, Q4, Q5) %>%
   rename(
     us.region = region,
@@ -167,8 +167,9 @@ covar.data <- select(data, ResponseId,
     peace.str = Q1,
     force.worse = Q6,
     war.unf = Q3,
+    intl.trust = Q4,
     isolation = Q7,
-    us.sup = Q4,
+    us.sup = Q4.1,
     us.shame = Q5
   ) %>%
   left_join(trade.data.clean)
@@ -282,6 +283,15 @@ cjoint.data$mil.inter.fac <- recode(cjoint.data$mil.inter.fac,
                                     "(-3.01,3]" = "Dove",
                                     "(3,9.01]" = "Hawk")
 print(table(cjoint.data$mil.inter.fac))
+
+# intl trust
+cjoint.data$intl.trust.dum <- ifelse(cjoint.data$intl.trust ==
+                                      "Can trust other nations.",
+                                    1, 0)
+print("Intl. Trust")
+print(table(cjoint.data$intl.trust))
+print(table(cjoint.data$intl.trust.dum))
+
 # split exports
 cjoint.data$exports.fac <- factor(ifelse(cjoint.data$net.exports >= 0, "Positive",
                                  #   ifelse(cjoint.data$net.exports == 0, "Null",
@@ -468,4 +478,4 @@ form.attr.freq
 # combine plots 
 grid.arrange(form.attr.freq, main.attr.freq)
 treat.freq <- arrangeGrob(form.attr.freq, main.attr.freq)
-ggsave("appendix/treat-freq.png", treat.freq, height = 7, width = 8)
+ggsave("appendix/treat-freq.png", treat.freq, height = 9, width = 8)

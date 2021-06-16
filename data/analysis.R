@@ -73,7 +73,7 @@ plot(mm(main.data, choice.formula,
 
 amce.main.choice <- amce(main.data, choice.formula,
                          id = ~ ResponseId)
-plot(amce.main.choice) + 
+main.choice.plot <- plot(amce.main.choice) + 
   theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
   xlim(-.07, .13) +
   labs(title = "Maintain Alliance?")

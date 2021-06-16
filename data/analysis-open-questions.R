@@ -21,9 +21,10 @@ open.clean <- function(data){
       mil.serv = Q18,
       peace.str = Q1,
       force.worse = Q6,
+      intl.trust = Q4,
       war.unf = Q3,
       isolation = Q7,
-      us.sup = Q4,
+      us.sup = Q4.1,
       us.shame = Q5
     ) %>%
     left_join(trade.data.clean)
@@ -101,6 +102,16 @@ open.clean <- function(data){
                                       "(3,9.01]" = "Hawk")
   print("Mil. Inter.")
   print(table(covar.data$mil.inter.fac))
+  
+  
+  # intl trust
+  covar.data$intl.trust.dum <- ifelse(covar.data$intl.trust ==
+                                         "Can trust other nations.",
+                                       1, 0)
+  print("Intl. Trust")
+  print(table(covar.data$intl.trust))
+  print(table(covar.data$intl.trust.dum))
+  
   # split exports
   covar.data$exports.fac <- factor(ifelse(covar.data$net.exports >= 0, "Positive",
                                            #   ifelse(covar.data$net.exports == 0, "Null",
@@ -173,11 +184,13 @@ table(openq.main$benefits)
 table(openq.form$party.id, openq.form$mil.inter)
 table(openq.form$party.id, openq.form$mil.inter.fac)
 table(openq.form$party.id, openq.form$isolation.fac)
+table(openq.form$party.id, openq.form$intl.trust)
 
 # maintenance 
 table(openq.main$party.id, openq.main$mil.inter)
 table(openq.main$party.id, openq.main$mil.inter.fac)
 table(openq.main$party.id, openq.main$isolation.fac)
+table(openq.main$party.id, openq.main$intl.trust)
 
 
 # count mentions of isolation
