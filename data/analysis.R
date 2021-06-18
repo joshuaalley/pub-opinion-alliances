@@ -441,13 +441,31 @@ main.data$party.dispo <- interaction(main.data$party.id,
                                      main.data$isolation.fac,
                                      sep = "-")
 table(main.data$party.dispo)
+
+
+# calculate overall mean by group
+party.dispo.mean.main <- main.data %>%
+  group_by(party.dispo) %>%
+  summarize(
+    mean.choice = mean(choice, na.rm = TRUE),
+    mean.rate = mean(rating, na.rm = TRUE),
+    .groups = "keep"
+  ) %>%
+  drop_na()
+
+
 partydispo.mms.main <- cj(main.data, choice.formula, 
                          estimate = "mm",
-                         id = ~ ResponseId,  by = ~ party.dispo)
+                         id = ~ ResponseId,  by = ~ party.dispo) %>%
+                     left_join(party.dispo.mean.main) # overall means
+
 plot(filter(partydispo.mms.main, !str_detect(BY, "Independent")), 
             group = "party.dispo", vline = .5) +
-  facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none", 
-                           axis.text.y = element_text(size = 7)) +
+  facet_wrap(~ BY, ncol = 4L) + 
+  geom_vline(aes(xintercept = mean.choice),
+             linetype = "dashed") +
+  theme(legend.position = "none", 
+         axis.text.y = element_text(size = 7)) +
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Partisanship, FP Dispositions, and Alliance Maintenance")
 
@@ -456,14 +474,32 @@ form.data$party.dispo <- interaction(form.data$party.id,
                                      form.data$mil.inter.fac,
                                      form.data$isolation.fac,
                                      sep = "-")
+
+# calculate overall mean by group
+party.dispo.mean.form <- form.data %>%
+  group_by(party.dispo) %>%
+  summarize(
+    mean.choice = mean(choice, na.rm = TRUE),
+    mean.rate = mean(rating, na.rm = TRUE),
+    .groups = "keep"
+  ) %>%
+  drop_na()
+
+
 table(form.data$party.dispo)
+
+# calculate marginal means
 partydispo.mms.form <- cj(form.data, choice.formula, 
                           estimate = "mm",
-                          id = ~ ResponseId,  by = ~ party.dispo)
+                          id = ~ ResponseId,  by = ~ party.dispo) %>% 
+                        left_join(party.dispo.mean.form)
 plot(filter(partydispo.mms.form, !str_detect(BY, "Independent")), 
      group = "party.dispo", vline = .5) +
-  facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none",
-                           axis.text.y = element_text(size = 7)) +
+  facet_wrap(~ BY, ncol = 4L) + 
+  geom_vline(aes(xintercept = mean.choice),
+             linetype = "dashed") +
+  theme(legend.position = "none",
+          axis.text.y = element_text(size = 7)) +
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Partisanship, FP Dispositions, and Alliance Formation")
 
@@ -472,16 +508,22 @@ plot(filter(partydispo.mms.form, !str_detect(BY, "Independent")),
 # formation 
 plot(partydispo.mms.form, 
      group = "party.dispo", vline = .5) +
-  facet_wrap(~ BY) + theme(legend.position = "none",
-                           axis.text.y = element_text(size = 4)) +
+  facet_wrap(~ BY) + 
+  geom_vline(aes(xintercept = mean.choice),
+             linetype = "dashed") +
+  theme(legend.position = "none",
+          axis.text.y = element_text(size = 4)) +
   scale_color_manual(values = rep("black", 12)) +
   ggtitle("Partisanship, FP Dispositions, and Alliance Formation")
 
 # maintenance
 plot(partydispo.mms.main, 
      group = "party.dispo", vline = .5) +
-  facet_wrap(~ BY) + theme(legend.position = "none",
-                           axis.text.y = element_text(size = 4)) +
+  facet_wrap(~ BY) + 
+  geom_vline(aes(xintercept = mean.choice),
+             linetype = "dashed") +
+  theme(legend.position = "none",
+        axis.text.y = element_text(size = 4)) +
   scale_color_manual(values = rep("black", 12)) +
   ggtitle("Partisanship, FP Dispositions, and Alliance Maintenance")
 
@@ -493,11 +535,12 @@ plot(partydispo.mms.main,
 # formation
 partydispo.rate.form <- cj(form.data, rate.formula, 
                           estimate = "mm",
-                          id = ~ ResponseId,  by = ~ party.dispo)
+                          id = ~ ResponseId,  by = ~ party.dispo) 
 plot(filter(partydispo.rate.form, !str_detect(BY, "Independent")), 
      group = "party.dispo", vline = 50) +
-  facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none",
-                                      axis.text.y = element_text(size = 7)) +
+  facet_wrap(~ BY, ncol = 4L) + 
+  theme(legend.position = "none",
+          axis.text.y = element_text(size = 7)) +
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Rating: Partisanship, FP Dispositions, and Alliance Formation")
 ggsave("appendix/party-dispo-formapp.png", height = 12, width = 12)

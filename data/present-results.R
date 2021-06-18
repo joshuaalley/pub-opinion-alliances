@@ -72,24 +72,30 @@ filter.cregg.el <- function(x){
 plot(filter(filter.cregg.el(partydispo.mms.main), 
         !str_detect(BY, "Independent")), 
      group = "party.dispo", vline = .5) +
-  facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none", 
-                                      axis.text.y = element_text(size = 11)) +
+  facet_wrap(~ BY, ncol = 4L) + 
+  geom_vline(aes(xintercept = mean.choice),
+             linetype = "dashed") +
+  theme(legend.position = "none", 
+         axis.text.y = element_text(size = 11)) +
   geom_pointrange(aes(xmin = lower, xmax = upper),
                   fatten = 4) +
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Alliance Maintenance: Elite Cues, Partisanship and FP Dispositions")
-ggsave("figures/party-dispo-main-el.png", height = 12, width = 12)
+ggsave("figures/party-dispo-main-el.png", height = 11, width = 11)
 
 # formation 
 plot(filter(filter.cregg.el(partydispo.mms.form), !str_detect(BY, "Independent")), 
      group = "party.dispo", vline = .5) +
   geom_pointrange(aes(xmin = lower, xmax = upper),
                   fatten = 4) +
-  facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none",
-                                      axis.text.y = element_text(size = 11)) +
+  facet_wrap(~ BY, ncol = 4L) + 
+  geom_vline(aes(xintercept = mean.choice),
+             linetype = "dashed") +
+  theme(legend.position = "none",
+            axis.text.y = element_text(size = 11)) +
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Alliance Formation: Elite Cues, Partisanship and FP Dispositions")
-ggsave("figures/party-dispo-form-el.png", height = 12, width = 12)
+ggsave("figures/party-dispo-form-el.png", height = 11, width = 11)
 
 
 
@@ -107,21 +113,27 @@ filter.cregg.char <- function(x){
 plot(filter(filter.cregg.char(partydispo.mms.main), 
             !str_detect(BY, "Independent")), 
      group = "party.dispo", vline = .5) +
-  facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none", 
-                                      axis.text.y = element_text(size = 11)) +
+  facet_wrap(~ BY, ncol = 4L) + 
+  geom_vline(aes(xintercept = mean.choice),
+             linetype = "dashed") +
+  theme(legend.position = "none", 
+          axis.text.y = element_text(size = 11)) +
   geom_pointrange(aes(xmin = lower, xmax = upper),
                   fatten = 4) +
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Alliance Maintenance: Alliance Characteristics, Partisanship and FP Dispositions")
-ggsave("figures/party-dispo-main-char.png", height = 12, width = 12)
+ggsave("figures/party-dispo-main-char.png", height = 11, width = 11)
 
 # formation 
 plot(filter(filter.cregg.char(partydispo.mms.form), !str_detect(BY, "Independent")), 
      group = "party.dispo", vline = .5) +
   geom_pointrange(aes(xmin = lower, xmax = upper),
                   fatten = 4) +
-  facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none",
-                                      axis.text.y = element_text(size = 11)) +
+  facet_wrap(~ BY, ncol = 4L) + 
+  geom_vline(aes(xintercept = mean.choice),
+             linetype = "dashed") +
+  theme(legend.position = "none",
+        axis.text.y = element_text(size = 11)) +
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Alliance Formation: Alliance Characteristics, Partisanship and FP Dispositions")
-ggsave("figures/party-dispo-form-char.png", height = 12, width = 12)
+ggsave("figures/party-dispo-form-char.png", height = 11, width = 11)
