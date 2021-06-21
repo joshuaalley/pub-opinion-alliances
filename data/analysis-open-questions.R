@@ -444,17 +444,17 @@ joint.tab
 
 # output and combine
 form.gjrm.res <- gjrm.sum(gjrm.form)
-form.gjrm.res$Model <- "Formation"
+form.gjrm.res$Experiment <- "Formation"
 main.gjrm.res <- gjrm.sum(gjrm.main)
-main.gjrm.res$Model <- "Maintenance"
+main.gjrm.res$Experiment <- "Maintenance"
 
 full.gjrm.res <- bind_rows(form.gjrm.res, main.gjrm.res) %>%
                    filter(variable != "(Intercept)")
 
 # plot probit coefs 
 ggplot(full.gjrm.res, aes(x = Estimate, y = variable,
-                          group = Model,
-                          color = Model)) +
+                          group = Experiment,
+                          color = Experiment)) +
   facet_wrap(~ equation) +
   geom_vline(xintercept = 0) +
   geom_pointrange(aes(xmin = Estimate - 1.96*`Std. Error`,
@@ -467,73 +467,4 @@ ggsave("appendix/open-questions-res.png", height = 6, width = 8)
 
 
 
-### Bayesian estimation (unfortunately unstable)
-# first, compile model code
-stan.mvprob <- stan_model("data/multivar-probit.stan")
-
-# formation data
-form.open.outcomes <- as.matrix(
-  select(openq.form[complete.cases(openq.form), ], 
-         elite.supp,
-          alliance.attr, partner.attr)
-)
-
-form.open.vars <- as.matrix(
-  select(openq.form[complete.cases(openq.form), ],
-         partisan.str, isolation.num, mil.inter, 
-          age, gender, hispanic,
-          hhi, education, net.exports)
-)
-
-
-# create stan data
-form.data.mvprob <- list(
-  N = nrow(form.open.vars),
-  K = ncol(form.open.vars),
-  D = ncol(form.open.outcomes),
-  y = form.open.outcomes,
-  x = form.open.vars
-)
-
-# model formation emphases
-form.open.res <- sampling(stan.mvprob, form.data.mvprob,
-                          chains = 4, iter = 2000,
-                          warmup = 1000,
-                          cores = 4,
-                          control = list(
-                            max_treedepth = 15,
-                            adapt_delta = .85
-                          ))
-
-
-
-# maintenance data
-main.open.outcomes <- as.matrix(
-  select(openq.main[complete.cases(openq.main), ], 
-         elite.supp,
-         alliance.attr, partner.attr)
-)
-
-main.open.vars <- as.matrix(
-  select(openq.main[complete.cases(openq.main), ],
-         partisan.str, isolation.num, mil.inter, 
-         age, gender, hispanic,
-         hhi, education, net.exports)
-)
-
-
-# create stan data
-main.data.mvprob <- list(
-  N = nrow(main.open.vars),
-  K = ncol(main.open.vars),
-  D = ncol(main.open.outcomes),
-  y = main.open.outcomes,
-  x = main.open.vars
-)
-
-# model formation emphases
-main.open.res <- sampling(stan.mvprob, main.data.mvprob,
-                          chains = 4, iter = 2000,
-                          warmup = 1000,
-                          cores = 4)
 

@@ -44,28 +44,6 @@ rate.formula <- formula(rating ~ dem.supp + rep.supp + jcs.supp + state.supp +
                        defense.coop + issue.link + cap + mil.coop) #gender)
 
 
-# check differences by task 
-# maintenance
-main.data$task <- as.factor(main.data$task)
-# check differences by task
-cj_anova(main.data, choice.formula,
-     id = ~ ResponseId, by = ~ task)
-# slight difference driven by high support on task 1. 
-plot(cj(main.data, choice.formula, 
-            id = ~ ResponseId, estimate = "mm", by = ~ task),
-     group = "task", vline = 0.5)
-
-# formation
-form.data$task <- as.factor(form.data$task)
-cj_anova(form.data, choice.formula,
-         id = ~ ResponseId, by = ~ task)
-# no clear difference
-plot(cj(form.data, choice.formula, 
-        id = ~ ResponseId, estimate = "mm", by = ~ task),
-     group = "task", vline = 0.5)
-
-
-
 
 # choice
 plot(mm(main.data, choice.formula,
@@ -179,7 +157,7 @@ cj_anova(main.data[!is.na(main.data$isolation.fac), ], choice.formula,
          id = ~ ResponseId, by = ~ isolation.fac)
 
 
-# split by militant internationalism 
+# split by militant assertiveness 
 mm.main.milint <- cj(main.data, choice.formula,
                      estimate = "mm",
                      id = ~ ResponseId, by = ~ mil.inter.fac)
@@ -194,7 +172,7 @@ hawk.main <- plot(rbind(mm.main.milint, mmd.main.milint)) +
                theme_grey() +
                theme(legend.position = "none", 
                     axis.text.y = element_text(size = 6)) +
-               ggtitle("Militant Internationalism and Alliance Maintenance")
+               ggtitle("Militant Assertiveness and Alliance Maintenance")
 hawk.main
 # f-test shows clear difference
 cj_anova(main.data[!is.na(main.data$mil.inter.fac), ], choice.formula,
@@ -322,7 +300,7 @@ cj_anova(form.data[!is.na(form.data$isolation.fac), ], choice.formula,
 
 
 
-# split by militant internationalism 
+# split by militant assertiveness 
 mm.form.milint <- cj(form.data, choice.formula,
                      estimate = "mm",
                      id = ~ ResponseId, by = ~ mil.inter.fac)
@@ -337,7 +315,7 @@ hawk.form <- plot(rbind(mm.form.milint, mmd.form.milint)) +
               theme_grey() +
               theme(legend.position = "none",
                     axis.text.y = element_text(size = 6)) +
-              ggtitle("Militant Internationalism and Alliance Formation")
+              ggtitle("Militant Assertiveness and Alliance Formation")
 hawk.form
 # f-test shows clear differences
 cj_anova(form.data[!is.na(form.data$mil.inter.fac), ], choice.formula,
@@ -362,7 +340,7 @@ grid.arrange(isolation.plots, hawk.plots)
 ### interactions of individual concerns and partisanship
 
 
-# formation: combine militant internationalism and hawkishness
+# formation: combine militant assertiveness and hawkishness
 form.data$isol.milint <- interaction(form.data$isolation.fac, 
                                       form.data$mil.inter.fac, sep = "/")
 table(form.data$isol.milint)
@@ -373,7 +351,7 @@ plot(isolhawk.mms.form, group = "isol.milint", vline = 0.5) +
   facet_wrap(~ BY) + theme(legend.position = "none", 
                           axis.text.y = element_text(size = 7))
 
-# maintenance: combine militant internationalism and hawkishness
+# maintenance: combine militant assertiveness and hawkishness
 main.data$isol.milint <- interaction(main.data$isolation.fac, 
                                      main.data$mil.inter.fac, sep = "/")
 table(main.data$isol.milint)
@@ -559,3 +537,56 @@ ggsave("appendix/party-dispo-mainapp.png", height = 12, width = 12)
 
 
 
+
+
+### check differences by task 
+# maintenance
+main.data$task <- as.factor(main.data$task)
+# check differences by task
+cj_anova(main.data, choice.formula,
+         id = ~ ResponseId, by = ~ task)
+# slight difference driven by high support on task 1. 
+plot(cj(main.data, choice.formula, 
+        id = ~ ResponseId, estimate = "mm", by = ~ task),
+     group = "task", vline = 0.5)
+
+# formation
+form.data$task <- as.factor(form.data$task)
+cj_anova(form.data, choice.formula,
+         id = ~ ResponseId, by = ~ task)
+# no clear difference
+plot(cj(form.data, choice.formula, 
+        id = ~ ResponseId, estimate = "mm", by = ~ task),
+     group = "task", vline = 0.5)
+
+
+# check if dropping task 1 changes main results
+main.data.sub <- filter(main.data, task != 1)
+form.data.sub <- filter(form.data, task != 1)
+
+
+# look to unconditonal AMCE: very similar results
+# choice of maintenance
+plot(mm(main.data.sub, choice.formula,
+        id = ~ ResponseId))
+
+amce.main.choice.sub <- amce(main.data.sub, choice.formula,
+                         id = ~ ResponseId)
+main.choice.plot.sub <- plot(amce.main.choice.sub) + 
+  theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
+  xlim(-.07, .14) +
+  labs(title = "Maintain Alliance?: Subset Data")
+main.choice.plot.sub
+
+
+# choice of formation
+plot(mm(form.data.sub, choice.formula,
+        id = ~ ResponseId))
+
+amce.form.choice.sub <- amce(form.data.sub, choice.formula,
+                             id = ~ ResponseId)
+form.choice.plot.sub <- plot(amce.form.choice.sub) + 
+  theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
+  xlim(-.07, .14) +
+  labs(title = "Form Alliance?: Subset Data")
+form.choice.plot.sub
