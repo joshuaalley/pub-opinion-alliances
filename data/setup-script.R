@@ -14,6 +14,7 @@ library(FindIt)
 library(ggcarly)
 library(factorEx)
 library(GJRM)
+library(wesanderson)
 
 # manage conflicts
 conflict_scout()

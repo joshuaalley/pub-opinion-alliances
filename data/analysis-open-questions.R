@@ -236,6 +236,41 @@ xtable::xtable(table(openq.form$party.dispo),
                caption = "Number of respondents in each group of partisanship 
                and foreign policy disposition for the alliance formation experiment.")
 
+
+# further appendix figure- details on dispositions by partisanship
+form.dispo.plot <- ggplot(drop_na(openq.form, isolation.num), aes(x = mil.inter, 
+                      group = factor(isolation.num),
+                      fill = factor(isolation.num))) +
+                    facet_wrap(~ party.id) +
+                    geom_vline(xintercept = 3.5) +
+                    geom_bar(width = .75) +
+                    scale_fill_manual(values = wes_palette("Zissou1")) +
+                    labs(fill = "Isolationism",
+                        x = "Militant Assertiveness",
+                        y = "Number of Respondents",
+                        title = "Alliance Formation Experiment")
+form.dispo.plot
+
+main.dispo.plot <- ggplot(drop_na(openq.main, isolation.num), 
+                          aes(x = mil.inter, 
+                            group = factor(isolation.num),
+                            fill = factor(isolation.num))) +
+                       facet_wrap(~ party.id) +
+                       geom_vline(xintercept = 3.5) +
+                       geom_bar(width = .75) +
+                       scale_fill_manual(values = wes_palette("Zissou1")) +
+                       labs(fill = "Isolationism",
+                           x = "Militant Assertiveness",
+                           y = "Number of Respondents",
+                           title = "Alliance Maintenance Experiment")
+main.dispo.plot
+
+grid.arrange(form.dispo.plot, main.dispo.plot)
+dispo.part.plots <- arrangeGrob(form.dispo.plot, main.dispo.plot)
+ggsave("appendix/dispo-part-plots.png", dispo.part.plots,
+       height = 6, width = 8)
+
+
 # economic interests and parties
 table(openq.form$party.id, openq.form$exports.fac)
 table(openq.main$party.id, openq.main$exports.fac)

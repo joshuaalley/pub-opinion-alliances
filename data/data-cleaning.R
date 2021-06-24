@@ -479,3 +479,4 @@ form.attr.freq
 grid.arrange(form.attr.freq, main.attr.freq)
 treat.freq <- arrangeGrob(form.attr.freq, main.attr.freq)
 ggsave("appendix/treat-freq.png", treat.freq, height = 9, width = 8)
+
