@@ -122,7 +122,7 @@ plot(filter(filter.cregg.char(partydispo.mms.main),
                   fatten = 4) +
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Alliance Maintenance: Alliance Characteristics, Partisanship and FP Dispositions")
-ggsave("figures/party-dispo-main-char.png", height = 11, width = 11)
+ggsave("appendix/party-dispo-main-char.png", height = 11, width = 11)
 
 # formation 
 plot(filter(filter.cregg.char(partydispo.mms.form), !str_detect(BY, "Independent")), 
@@ -136,4 +136,4 @@ plot(filter(filter.cregg.char(partydispo.mms.form), !str_detect(BY, "Independent
         axis.text.y = element_text(size = 11)) +
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Alliance Formation: Alliance Characteristics, Partisanship and FP Dispositions")
-ggsave("figures/party-dispo-form-char.png", height = 11, width = 11)
+ggsave("appendix/party-dispo-form-char.png", height = 11, width = 11)
