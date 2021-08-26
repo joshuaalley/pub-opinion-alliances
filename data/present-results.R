@@ -3,19 +3,6 @@
 
 # given number of attributes and no color, need more legible figures
 
-# set filter function for cregg objects
-filter.cregg <- function(x){
-  filter(x, feature == "Democrat Senators" |
-           feature == "Republican Senators" |
-           feature == "The Joint Chiefs of Staff" |
-           feature == "The Secretary of State" |
-           feature == "Region" |
-           feature == "Political Regime" |
-           feature == "Trade Ties" |
-           feature == "Financial Cost" |
-           feature == "Related Cooperation")
-}
-
 # choice for alliance maintenance
 main.choice.plot <- plot(filter.cregg(amce.main.choice)) + 
   theme(legend.position = "none", axis.text.y = element_text(size = 10)) +
@@ -59,14 +46,6 @@ mmplot.form.part
 # need to split to make legible
 # split by treatment
 
-# set filter function for cregg objects: 
- # elite cues 
-filter.cregg.el <- function(x){
-  filter(x, feature == "Democrat Senators" |
-           feature == "Republican Senators" |
-           feature == "The Joint Chiefs of Staff" |
-           feature == "The Secretary of State")
-}
 
 # maintenance first
 plot(filter(filter.cregg.el(partydispo.mms.main), 
@@ -99,15 +78,7 @@ ggsave("figures/party-dispo-form-el.png", height = 11, width = 11)
 
 
 
-# set filter function for cregg objects
-# alliance characteristics here
-filter.cregg.char <- function(x){
-  filter(x, feature == "Region" |
-           feature == "Political Regime" |
-           feature == "Trade Ties" |
-           feature == "Financial Cost" |
-           feature == "Related Cooperation")
-}
+# alliance characteristics
 
 # maintenance first
 plot(filter(filter.cregg.char(partydispo.mms.main), 

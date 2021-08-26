@@ -80,7 +80,7 @@ ggsave("appendix/maintenance-plots.png", maintenance.plots, width = 10, height =
 mm.main.part <- cj(main.data, choice.formula,
                        estimate = "mm",
                        id = ~ ResponseId, by = ~ party.id)
-mmplot.main.part <- plot(mm.main.part, group = "party.id") +
+mmplot.main.part <- plot(filter.cregg(mm.main.part), group = "party.id") +
                       facet_wrap(~BY, ncol = 3L) + 
                     theme_grey() + 
                       theme(legend.position = "none", 
@@ -92,7 +92,7 @@ mmplot.main.part
 mmd.main.part <- cj(main.data, choice.formula,
                    estimate = "mm_differences",
                    id = ~ ResponseId, by = ~ party.id)
-mmdiff.main.part <- plot(mmd.main.part) +
+mmdiff.main.part <- plot(filter.cregg(mmd.main.part)) +
                      facet_wrap(~BY, ncol = 3L) + 
                      theme_grey() +
                      theme(legend.position = "none", 
@@ -145,7 +145,8 @@ mmd.main.isol  <- cj(main.data, choice.formula,
                        estimate = "mm_differences",
                        id = ~ ResponseId, by = ~ isolation.fac)
 plot(mmd.main.isol, group = "isolation.fac")
-isol.main <- plot(rbind(mm.main.isol, mmd.main.isol)) + 
+isol.main <- plot(rbind(filter.cregg(mm.main.isol),
+                        filter.cregg(mmd.main.isol))) + 
               facet_wrap(~BY, ncol = 3L) + 
               theme_grey() +
               theme(legend.position = "none", 
@@ -167,7 +168,8 @@ mmd.main.milint  <- cj(main.data, choice.formula,
                        estimate = "mm_differences",
                        id = ~ ResponseId, by = ~ mil.inter.fac)
 plot(mmd.main.milint, group = "mil.inter.fac")
-hawk.main <- plot(rbind(mm.main.milint, mmd.main.milint)) + 
+hawk.main <- plot(rbind(filter.cregg(mm.main.milint),
+                        filter.cregg(mmd.main.milint))) + 
                facet_wrap(~BY, ncol = 3L) + 
                theme_grey() +
                theme(legend.position = "none", 
@@ -191,7 +193,9 @@ plot(mm(form.data, choice.formula,
 
 amce.form.choice <- amce(form.data, choice.formula,
                          id = ~ ResponseId)
-form.choice.plot <- plot(amce.form.choice) + theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
+form.choice.plot <- plot(amce.form.choice) +
+                   theme(legend.position = "none", 
+                    axis.text.y = element_text(size = 8)) +
                      xlim(-.07, .13) +
                      labs(title = "Form Alliance?")
 form.choice.plot
@@ -219,7 +223,7 @@ ggsave("appendix/formation-plots.png", formation.plots, width = 10, height = 8)
 mm.form.part <- cj(form.data, choice.formula,
                    estimate = "mm",
                    id = ~ ResponseId, by = ~ party.id)
-mmplot.form.part <- plot(mm.form.part, group = "party.id") +
+mmplot.form.part <- plot(filter.cregg(mm.form.part), group = "party.id") +
   facet_wrap(~BY, ncol = 3L) + 
   theme_grey() +
   theme(legend.position = "none", axis.text.y = element_text(size = 8)) +
@@ -230,13 +234,14 @@ mmplot.form.part
 mmd.form.part <- cj(form.data, choice.formula,
                     estimate = "mm_differences",
                     id = ~ ResponseId, by = ~ party.id)
-mmdiff.form.part <- plot(mmd.form.part) +
+mmdiff.form.part <- plot(filter.cregg(mmd.form.part)) +
   facet_wrap(~BY, ncol = 3L) + 
   theme_grey() +
   theme(legend.position = "none", axis.text.y = element_text(size = 8))
 mmdiff.form.part
 # plot marginal means and differences
 grid.arrange(mmplot.form.part, mmdiff.form.part)
+part.form.plot <- arrangeGrob(mmplot.form.part, mmdiff.form.part)
 
 
 # combine formation and maintenance partisanship plots
@@ -287,7 +292,8 @@ mmd.form.isol <- cj(form.data, choice.formula,
                               estimate = "mm_differences",
                              id = ~ ResponseId, by = ~ isolation.fac)
 plot(mmd.form.isol, group = "isolation.fac")
-isol.form <- plot(rbind(mm.form.isol, mmd.form.isol)) + 
+isol.form <- plot(rbind(filter.cregg(mm.form.isol),
+                        filter.cregg(mmd.form.isol))) + 
               facet_wrap(~BY, ncol = 3L) + 
               theme_grey() +
               theme(legend.position = "none", 
@@ -310,7 +316,8 @@ mmd.form.milint  <- cj(form.data, choice.formula,
                        estimate = "mm_differences",
                        id = ~ ResponseId, by = ~ mil.inter.fac)
 plot(mmd.form.milint, group = "mil.inter.fac")
-hawk.form <- plot(rbind(mm.form.milint, mmd.form.milint)) + 
+hawk.form <- plot(rbind(filter.cregg(mm.form.milint),
+                        filter.cregg(mmd.form.milint))) + 
               facet_wrap(~BY, ncol = 3L) + 
               theme_grey() +
               theme(legend.position = "none",
@@ -514,7 +521,7 @@ plot(partydispo.mms.main,
 partydispo.rate.form <- cj(form.data, rate.formula, 
                           estimate = "mm",
                           id = ~ ResponseId,  by = ~ party.dispo) 
-plot(filter(partydispo.rate.form, !str_detect(BY, "Independent")), 
+plot(filter(filter.cregg.el(partydispo.rate.form), !str_detect(BY, "Independent")), 
      group = "party.dispo", vline = 50) +
   facet_wrap(~ BY, ncol = 4L) + 
   theme(legend.position = "none",
@@ -527,7 +534,7 @@ ggsave("appendix/party-dispo-formapp.png", height = 12, width = 12)
 partydispo.rate.main <- cj(main.data, rate.formula, 
                            estimate = "mm",
                            id = ~ ResponseId,  by = ~ party.dispo)
-plot(filter(partydispo.rate.main, !str_detect(BY, "Independent")), 
+plot(filter(filter.cregg.el(partydispo.rate.main), !str_detect(BY, "Independent")), 
      group = "party.dispo", vline = 50) +
   facet_wrap(~ BY, ncol = 4L) + theme(legend.position = "none",
                                       axis.text.y = element_text(size = 7)) +
