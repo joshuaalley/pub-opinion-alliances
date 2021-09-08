@@ -25,7 +25,7 @@ form.choice.plot.el
 # combine formation and maintenance choice plots
 grid.arrange(form.choice.plot.el, main.choice.plot.el, ncol= 2)
 joint.amce.plots.el <- arrangeGrob(form.choice.plot.el, main.choice.plot.el, ncol = 2)
-ggsave("figures/joint-amce-plots-el.png", joint.amce.plots.el, width = 10, height = 8)
+ggsave("figures/joint-amce-plots-el.png", joint.amce.plots.el, width = 8, height = 6)
 
 
 
