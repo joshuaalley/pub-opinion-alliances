@@ -47,17 +47,55 @@ open.clean <- function(data){
   # strength of party attachment
   covar.data$partisan.str <- ifelse(covar.data$political_party == 1 |
                                       covar.data$political_party == 10,
-                                    3, # strong
+                                    "Strong", # strong
                               ifelse(covar.data$political_party == 2 |
                                        covar.data$political_party == 9,
-                                     2, # not very strong
+                                     "Weak", # not very strong
                                ifelse(covar.data$political_party == 3 |
                                       covar.data$political_party == 6|
                                         covar.data$political_party == 8 |
                                         covar.data$political_party == 5,
-                                      # indep/other w/ lean
-                                      1, 0))) 
+                                      # indep/other w/o lean
+                                      "Lean", "Independent"))) 
+  covar.data$partisan.str <- factor(covar.data$partisan.str,
+                                       ordered = TRUE,
+                                       levels = c("Independent", "Lean",
+                                       "Weak", "Strong"))
   
+  covar.data$partisan.str.num <- as.numeric(covar.data$partisan.str) - 1
+  
+  # partisan str 
+  covar.data$partisan.id <- factor(recode(covar.data$political_party,
+                                    `1` = "Str Dem",
+                                    `2` = "Wk Dem",
+                                    `3` = "Ind Dem",
+                                    `6` = "Other Dem",
+                                    `4` = "Indep",
+                                    `7` = "Other",
+                                    `8` = "Other Rep",
+                                    `5` = "Ind Rep",
+                                    `9` = "Wk Rep",
+                                    `10` = "Str Rep"),
+                                   ordered = TRUE,
+                                   levels =  c("Str Dem", "Wk Dem",
+                                    "Ind Dem", "Other Dem",
+                                    "Indep", "Other",
+                                   "Other Rep", "Ind Rep",
+                                   "Wk Rep", "Str Rep"))
+  # strong, weak and indep dummy
+  covar.data$str.party <- ifelse(covar.data$political_party == 1 |
+                                      covar.data$political_party == 10,
+                                    1, 0) # strong
+  covar.data$weak.party <- ifelse(covar.data$political_party == 2 |
+                                    covar.data$political_party == 9 | 
+                                    covar.data$political_party == 3 |
+                                    covar.data$political_party == 6|
+                                    covar.data$political_party == 8 |
+                                    covar.data$political_party == 5,
+                                 1, 0) # weak/lean 
+  covar.data$indep <- ifelse(covar.data$political_party == 7 |
+                               covar.data$political_party ==4,
+                             1, 0) # indep
   
   # gender and military service
   covar.data$gender.fac <- as.factor(recode(covar.data$gender, 
@@ -209,10 +247,6 @@ ggplot(openq.main, aes(x = mil.inter, y = isolation.num)) +
   geom_smooth()
 
 
-ggplot(openq.main, aes(x = mil.inter, y = isolation.num,
-                       color = party.id)) +
-  geom_jitter(alpha = .5)
-
 # tabulate number of respondents in each disposition
 # numbers of each: maintenance
 openq.main$party.dispo <- interaction(openq.main$party.id, 
@@ -235,6 +269,221 @@ xtable::xtable(table(openq.form$party.dispo),
                label = "tab:party-dispo-form",
                caption = "Number of respondents in each group of partisanship 
                and foreign policy disposition for the alliance formation experiment.")
+
+
+# tabulate number of respondents in each disposition
+# across partyid strength
+table(openq.main$partisan.id)
+ggplot(drop_na(openq.main, mil.inter.fac, isolation.fac),
+       aes(x = partisan.id)) +
+  facet_wrap(~ mil.inter.fac + isolation.fac) +
+  geom_bar()
+
+# summarize
+main.pstr <- openq.main %>%
+               filter(party.id != "Independent") %>%
+               group_by(partisan.str, party.id) %>%
+               drop_na(mil.inter.fac, isolation.fac) %>% 
+               summarize(
+                 mil.inter.avg = mean(mil.inter),
+                 isolation.avg = mean(isolation.num),
+                 mil.inter.se = sd(mil.inter) / sqrt(n()),
+                 isolation.se = sd(isolation.num) / sqrt(n()),
+                 .groups = "keep"
+               ) %>%
+              pivot_longer(cols = c("mil.inter.avg", "isolation.avg")) 
+              
+  
+main.pstr$name <- recode(main.pstr$name,
+                    "mil.inter.avg" = "Militant Internationalism",
+                    "isolation.avg" = "Isolationism")
+
+# plot
+party.str.main <- ggplot(main.pstr, aes(x = partisan.str, 
+                      y = value,
+                      group = party.id,
+                      fill = party.id)) +
+                  facet_wrap(~ name) +
+                  geom_bar(stat = "identity", color="black", 
+                  position=position_dodge()) +
+                labs(x = "Partisan Affiliation Strength",
+                     y = "Average Disposition Score",
+                     fill = "Party",
+                     title = "Alliance Maintenance")
+party.str.main
+
+
+# partisan str by disposition
+main.dispo.str <- openq.main %>%
+  filter(party.id != "Independent") %>%
+  mutate(
+    dispo = interaction(mil.inter.fac,
+                isolation.fac,
+                sep = "-")
+  ) %>% 
+  group_by(party.id, dispo) %>%
+  drop_na(mil.inter.fac, isolation.fac) %>% 
+  summarize(
+    mil.inter.avg = mean(mil.inter),
+    isolation.avg = mean(isolation.num),
+    mil.inter.se = sd(mil.inter) / sqrt(n()),
+    isolation.se = sd(isolation.num) / sqrt(n()),
+    partisan.str.avg = mean(partisan.str.num),
+    partisan.str.se = sd(partisan.str.num) / sqrt(n()),
+    educ.avg = mean(education, na.rm = T),
+    educ.se = sd(education, na.rm = T) / sqrt(n()),
+    .groups = "keep"
+  ) 
+
+
+ggplot(main.dispo.str, aes(x = factor(dispo), 
+                      y = partisan.str.avg)) +
+  facet_wrap(~ party.id) +
+  geom_bar(stat = "identity", color="black",
+           fill = "lightgray",
+           position=position_dodge()) +
+  geom_errorbar(aes(ymin = partisan.str.avg - 2*partisan.str.se,
+                    ymax = partisan.str.avg + 2*partisan.str.se), 
+                width=0.4, colour="black", alpha=0.9) +
+  labs(x = "Foreign Policy Disposition",
+       y = "Average Partisan Affiliation Strength",
+       title = "Alliance Maintenance")
+
+
+
+# formation
+ggplot(drop_na(openq.form, mil.inter.fac, isolation.fac),
+       aes(x = partisan.id)) +
+  facet_wrap(~ mil.inter.fac + isolation.fac) +
+  geom_bar()
+
+
+# summarize
+form.pstr <- openq.form %>%
+  filter(party.id != "Independent") %>%
+  group_by(partisan.str, party.id) %>%
+  drop_na(mil.inter.fac, isolation.fac) %>% 
+  summarize(
+    mil.inter.avg = mean(mil.inter),
+    isolation.avg = mean(isolation.num),
+    mil.inter.se = sd(mil.inter) / sqrt(n()),
+    isolation.se = sd(isolation.num) / sqrt(n()),
+    .groups = "keep"
+  ) %>%
+  pivot_longer(cols = c("mil.inter.avg", "isolation.avg")) 
+
+
+form.pstr$name <- recode(form.pstr$name,
+                         "mil.inter.avg" = "Militant Internationalism",
+                         "isolation.avg" = "Isolationism")
+
+# plot
+party.str.form <- ggplot(form.pstr, aes(x = partisan.str, 
+                                        y = value,
+                                        group = party.id,
+                                        fill = party.id)) +
+  facet_wrap(~ name) +
+  geom_bar(stat = "identity", color="black", 
+           position=position_dodge()) +
+  labs(x = "Partisan Affiliation Strength",
+       y = "Average Disposition Score",
+       fill = "Party",
+       title = "Alliance Formation")
+party.str.form
+
+
+# partisan str by disposition
+form.dispo.str <- openq.form %>%
+  filter(party.id != "Independent") %>%
+  mutate(
+    dispo = interaction(mil.inter.fac,
+                        isolation.fac,
+                        sep = "-")
+  ) %>% 
+  group_by(party.id, dispo) %>%
+  drop_na(mil.inter.fac, isolation.fac) %>% 
+  summarize(
+    mil.inter.avg = mean(mil.inter),
+    isolation.avg = mean(isolation.num),
+    mil.inter.se = sd(mil.inter) / sqrt(n()),
+    isolation.se = sd(isolation.num) / sqrt(n()),
+    partisan.str.avg = mean(partisan.str.num),
+    partisan.str.se = sd(partisan.str.num) / sqrt(n()),
+    educ.avg = mean(education, na.rm = T),
+    educ.se = sd(education, na.rm = T) / sqrt(n()),
+    .groups = "keep"
+  ) 
+
+ggplot(form.dispo.str, aes(x = factor(dispo), 
+                           y = partisan.str.avg)) +
+  facet_wrap(~ party.id) +
+  geom_bar(stat = "identity", color="black",
+           fill = "lightgray",
+           position=position_dodge()) +
+  geom_errorbar(aes(ymin = partisan.str.avg - 2*partisan.str.se,
+                    ymax = partisan.str.avg + 2*partisan.str.se), 
+                width=0.4, colour="black", alpha=0.9) +
+  labs(x = "Foreign Policy Disposition",
+       y = "Average Partisan Affiliation Strength",
+       title = "Alliance Formation")
+
+
+# combine summary
+dispo.str.all <- bind_rows(
+  "Maintenance" = main.dispo.str,
+  "Formation" = form.dispo.str,
+  .id = "Experiment"
+)
+
+ggplot(dispo.str.all, aes(x = factor(dispo), 
+                           y = partisan.str.avg,
+                          group = Experiment,
+                          fill = Experiment)) +
+  facet_wrap(~ party.id) +
+  geom_bar(stat = "identity", color="black",
+           position=position_dodge()) +
+  geom_errorbar(aes(ymin = partisan.str.avg - 2*partisan.str.se,
+                    ymax = partisan.str.avg + 2*partisan.str.se,
+                    group = Experiment,
+                    color = Experiment),
+                position=position_dodge(width = 1),
+                width=0.4, alpha=0.9) +
+  scale_fill_grey(start = .4, end = .8) +
+  scale_color_grey(start = .8, end = .4) +
+  labs(x = "Foreign Policy Disposition",
+       y = "Average Partisan Affiliation Strength",
+       title = "Partisan Affiliation by Foreign Policy Disposition")
+ggsave("appendix/part-str-plots.png", 
+       height = 8, width = 11)
+
+# education
+ggplot(dispo.str.all, aes(x = factor(dispo), 
+                          y = educ.avg,
+                          group = Experiment,
+                          fill = Experiment)) +
+  facet_wrap(~ party.id) +
+  geom_bar(stat = "identity", color="black",
+           position=position_dodge()) +
+  geom_errorbar(aes(ymin = educ.avg - 2*educ.se,
+                    ymax = educ.avg + 2*educ.se,
+                    group = Experiment,
+                    color = Experiment),
+                position=position_dodge(width = 1),
+                width=0.4, alpha=0.9) +
+  scale_fill_grey(start = .4, end = .8) +
+  scale_color_grey(start = .8, end = .4) +
+  labs(x = "Foreign Policy Disposition",
+       y = "Average Educational Attainment",
+       title = "Educational Attainment by Foreign Policy Disposition")
+ggsave("appendix/part-educ-plots.png", 
+       height = 8, width = 11)
+
+
+# combine 
+grid.arrange(party.str.form, party.str.main)
+part.str.plots <- arrangeGrob(party.str.form, party.str.main)
+ggsave("appendix/part-str-plots.png", part.str.plots,
+       height = 6, width = 8)
 
 
 # further appendix figure- details on dispositions by partisanship
