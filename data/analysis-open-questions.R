@@ -214,6 +214,17 @@ table(openq.main$trust)
 table(openq.main$benefits)
 
 
+# demographic data
+main.demog <- select(openq.main,
+                     age, gender, white)
+apply(main.demog, 2, summary)
+
+
+form.demog <- select(openq.form,
+                     age, gender, white)
+apply(form.demog, 2, summary)
+
+
 
 ### look over raw data 
 
