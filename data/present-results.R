@@ -4,7 +4,8 @@
 # given number of attributes and no color, need more legible figures
 
 # choice for alliance maintenance
-main.choice.plot.el <- plot(filter.cregg.el(amce.main.choice)) + 
+main.choice.plot.el <- plot(filter.cregg.el(amce.main.choice),
+                             size = 2) + 
   theme(legend.position = "none", axis.text.y = element_text(size = 10)) +
   xlim(-.07, .13) +
   scale_color_manual(values = rep("black", 10)) +
@@ -13,7 +14,8 @@ main.choice.plot.el
 
 
 # choice for alliance formation 
-form.choice.plot.el <- plot(filter.cregg.el(amce.form.choice)) + 
+form.choice.plot.el <- plot(filter.cregg.el(amce.form.choice),
+                            size = 2) + 
   theme(legend.position = "none", axis.text.y = element_text(size = 10)) +
   xlim(-.07, .13) +
   scale_color_manual(values = rep("black", 10)) +
@@ -75,7 +77,7 @@ plot(filter(filter.cregg.el(partydispo.mms.main),
   theme(legend.position = "none", 
          axis.text.y = element_text(size = 11)) +
   geom_pointrange(aes(xmin = lower, xmax = upper),
-                  fatten = 4) +
+                   fatten = 4) +
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Alliance Maintenance: Elite Cues, Partisanship and FP Dispositions")
 ggsave("figures/party-dispo-main-el.png", height = 11, width = 11)
