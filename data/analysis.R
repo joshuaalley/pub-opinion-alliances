@@ -433,7 +433,9 @@ party.dispo.mean.main <- main.data %>%
   group_by(party.dispo) %>%
   summarize(
     mean.choice = mean(choice, na.rm = TRUE),
+    sd.choice = sd(choice, na.rm = TRUE),
     mean.rate = mean(rating, na.rm = TRUE),
+    sd.rate = sd(rating, na.rm = TRUE),
     .groups = "keep"
   ) %>%
   drop_na()
@@ -465,7 +467,9 @@ party.dispo.mean.form <- form.data %>%
   group_by(party.dispo) %>%
   summarize(
     mean.choice = mean(choice, na.rm = TRUE),
+    sd.choice = sd(choice, na.rm = TRUE),
     mean.rate = mean(rating, na.rm = TRUE),
+    sd.rate = sd(rating, na.rm = TRUE),
     .groups = "keep"
   ) %>%
   drop_na()
