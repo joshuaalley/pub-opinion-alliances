@@ -28,7 +28,8 @@ form.choice.plot.el
 grid.arrange(form.choice.plot.el, main.choice.plot.el, ncol= 2)
 joint.amce.plots.el <- arrangeGrob(form.choice.plot.el, main.choice.plot.el, ncol = 2)
 ggsave("figures/joint-amce-plots-el.png", joint.amce.plots.el, width = 8, height = 6)
-
+# ggsave("jcr-r&r/joint-amce-plots-el.tiff", dpi = 400,
+#        height = 11, width = 11)
 
 
 
@@ -81,6 +82,8 @@ plot(filter(filter.cregg.el(partydispo.mms.main),
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Alliance Maintenance: Elite Cues, Partisanship and FP Dispositions")
 ggsave("figures/party-dispo-main-el.png", height = 11, width = 11)
+# ggsave("jcr-r&r/party-dispo-main-el.tiff", dpi = 400,
+#        height = 11, width = 11)
 
 # formation 
 plot(filter(filter.cregg.el(partydispo.mms.form), !str_detect(BY, "Independent")), 
@@ -95,7 +98,8 @@ plot(filter(filter.cregg.el(partydispo.mms.form), !str_detect(BY, "Independent")
   scale_color_manual(values = rep("black", 9)) +
   ggtitle("Alliance Formation: Elite Cues, Partisanship and FP Dispositions")
 ggsave("figures/party-dispo-form-el.png", height = 11, width = 11)
-
+# ggsave("jcr-r&r/party-dispo-form-el.tiff", dpi = 400,
+#        height = 11, width = 11)
 
 
 # alliance characteristics
